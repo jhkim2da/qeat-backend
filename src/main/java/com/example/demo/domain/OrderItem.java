@@ -21,4 +21,44 @@ public class OrderItem {
     private Long menuId;
 
     protected OrderItem() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public int getPriceAtOrder() {
+        return priceAtOrder;
+    }
+
+    public void setPriceAtOrder(int priceAtOrder) {
+        this.priceAtOrder = priceAtOrder;
+    }
+
+    public Long getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(Long menuId) {
+        this.menuId = menuId;
+    }
 }
