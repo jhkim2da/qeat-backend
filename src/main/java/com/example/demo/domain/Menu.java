@@ -20,6 +20,11 @@ public class Menu {
     @Column(name = "sold_out")
     private Boolean soldOut;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    private String category;
+
     public Long getId() {
         return id;
     }
@@ -66,6 +71,22 @@ public class Menu {
 
     public void setSoldOut(Boolean soldOut) {
         this.soldOut = soldOut;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     protected Menu() {}
