@@ -10,8 +10,9 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "booth_id")
-    private Long boothId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booth_id")
+    private Booth booth;
 
     private String name;
     private String description;
@@ -23,7 +24,8 @@ public class Menu {
     @Column(name = "image_url")
     private String imageUrl;
 
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private Catecory category;
 
     public Long getId() {
         return id;
@@ -33,12 +35,12 @@ public class Menu {
         this.id = id;
     }
 
-    public Long getBoothId() {
-        return boothId;
+    public Booth getBooth() {
+        return booth;
     }
 
-    public void setBoothId(Long boothId) {
-        this.boothId = boothId;
+    public void setBooth(Booth booth) {
+        this.booth = booth;
     }
 
     public String getName() {
@@ -81,11 +83,11 @@ public class Menu {
         this.imageUrl = imageUrl;
     }
 
-    public String getCategory() {
+    public Catecory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Catecory category) {
         this.category = category;
     }
 
