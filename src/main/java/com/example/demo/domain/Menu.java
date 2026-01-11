@@ -25,7 +25,7 @@ public class Menu {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    private Catecory category;
+    private Category category;
 
     public Long getId() {
         return id;
@@ -83,11 +83,22 @@ public class Menu {
         this.imageUrl = imageUrl;
     }
 
-    public Catecory getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Catecory category) {
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+
+    public Menu(Booth booth, String name, String description, int price, String imageUrl, Category category) {
+        this.booth = booth;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.soldOut = false;
+        this.imageUrl = imageUrl;
         this.category = category;
     }
 

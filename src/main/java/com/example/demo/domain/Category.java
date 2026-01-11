@@ -1,6 +1,6 @@
 package com.example.demo.domain;
 
-public enum Catecory {
+public enum Category {
     MAIN_FOOD,
     SIDE_FOOD,
     DRINK,
