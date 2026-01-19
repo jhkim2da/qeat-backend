@@ -31,16 +31,8 @@ public class Menu {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Booth getBooth() {
         return booth;
-    }
-
-    public void setBooth(Booth booth) {
-        this.booth = booth;
     }
 
     public String getName() {
@@ -55,19 +47,11 @@ public class Menu {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public int getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public Boolean getSoldOut() {
+    public boolean isSoldOut() {
         return soldOut;
     }
 

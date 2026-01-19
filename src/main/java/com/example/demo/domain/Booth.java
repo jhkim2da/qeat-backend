@@ -20,45 +20,28 @@ public class Booth {
     @Column(name = "owner_id")
     private Long ownerId;
 
-    protected Booth() {}
-
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    protected Booth() {}
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    private Booth(String name, String description, Long ownerId) {
         this.name = name;
+        this.description = description;
+        this.ownerId = ownerId;
     }
 
-    public String getDescription() {
-        return description;
+    public static Booth create(String name, String description, Long ownerId) {
+        return new Booth(name, description, ownerId);
     }
 
-    public void setDescription(String description) {
+    public void updateDescription(String description) {
         this.description = description;
     }
 
-    public LocalDate getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDate.now();
     }
 }

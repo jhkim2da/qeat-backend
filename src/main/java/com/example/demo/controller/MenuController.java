@@ -1,8 +1,8 @@
-package com.example.demo.Controller;
+package com.example.demo.controller;
 
 import com.example.demo.Service.MenuService;
-import com.example.demo.dto.MenuCreateRequest;
-import com.example.demo.dto.MenuResponse;
+import com.example.demo.dto.menu.MenuCreateRequest;
+import com.example.demo.dto.menu.MenuResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.example.demo.domain;
 
 public enum Status {
-    PAID,
+    CHECK,
     PREPARING,
     DONE
 }

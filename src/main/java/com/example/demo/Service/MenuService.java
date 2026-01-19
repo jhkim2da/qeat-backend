@@ -4,8 +4,8 @@ import com.example.demo.Repository.BoothRepository;
 import com.example.demo.Repository.MenuRepository;
 import com.example.demo.domain.Booth;
 import com.example.demo.domain.Menu;
-import com.example.demo.dto.MenuCreateRequest;
-import com.example.demo.dto.MenuResponse;
+import com.example.demo.dto.menu.MenuCreateRequest;
+import com.example.demo.dto.menu.MenuResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
