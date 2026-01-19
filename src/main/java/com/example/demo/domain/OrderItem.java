@@ -61,4 +61,14 @@ public class OrderItem {
     public void setMenuId(Long menuId) {
         this.menuId = menuId;
     }
+    private OrderItem(Long orderId, Long menuId, int quantity, int price) {
+        this.orderId = orderId;
+        this.menuId = menuId;
+        this.quantity = quantity;
+        this.priceAtOrder = price;
+    }
+
+    public static OrderItem create(Long orderId, Long menuId, int quantity, int price) {
+        return new OrderItem(orderId, menuId, quantity, price);
+    }
 }

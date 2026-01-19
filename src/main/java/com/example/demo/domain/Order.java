@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.example.demo.dto.order.OrderCreateRequest;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class Order {
     private Long tableId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
 
     @Column(name = "total_price")
@@ -30,48 +32,24 @@ public class Order {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getBoothId() {
         return boothId;
     }
 
-    public void setBoothId(Long boothId) {
+    private Order(Long boothId, Long tableId, int totalPrice) {
         this.boothId = boothId;
-    }
-
-    public Long getTableId() {
-        return tableId;
-    }
-
-    public void setTableId(Long tableId) {
         this.tableId = tableId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public int getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(int totalPrice) {
         this.totalPrice = totalPrice;
+        this.status = Status.CHECK;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public static Order create(Long boothId, Long tableId, int totalPrice) {
+        return new Order(boothId, tableId, totalPrice);
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
     }
 
     protected Order() {}
