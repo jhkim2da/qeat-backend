@@ -17,58 +17,52 @@ public class OrderItem {
     @Column(name = "price_at_order")
     private int priceAtOrder;
 
-    @Column(name = "menu_id")
-    private Long menuId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
 
     protected OrderItem() {}
 
-    public Long getId() {
-        return id;
+    private OrderItem(Long orderId, Menu menu, int quantity, int priceAtOrder) {
+        this.orderId = orderId;
+        this.menu = menu;
+        this.quantity = quantity;
+        this.priceAtOrder = priceAtOrder;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public static OrderItem create(Long orderId, Menu menu, int quantity, int priceAtOrder) {
+        return new OrderItem(orderId, menu, quantity, priceAtOrder);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
     public int getQuantity() {
         return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public int getPriceAtOrder() {
         return priceAtOrder;
     }
 
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     public void setPriceAtOrder(int priceAtOrder) {
         this.priceAtOrder = priceAtOrder;
     }
 
-    public Long getMenuId() {
-        return menuId;
-    }
-
-    public void setMenuId(Long menuId) {
-        this.menuId = menuId;
-    }
-    private OrderItem(Long orderId, Long menuId, int quantity, int price) {
-        this.orderId = orderId;
-        this.menuId = menuId;
-        this.quantity = quantity;
-        this.priceAtOrder = price;
-    }
-
-    public static OrderItem create(Long orderId, Long menuId, int quantity, int price) {
-        return new OrderItem(orderId, menuId, quantity, price);
+    public void setMenu(Menu menu) {
+        this.menu = menu;
     }
 }
