@@ -1,8 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.Service.MenuService;
-import com.example.demo.dto.menu.MenuCreateRequest;
+import com.example.demo.dto.menu.MenuCreateForm;
 import com.example.demo.dto.menu.MenuResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,13 @@ public class MenuController {
     }
 
     @PostMapping("/api/booths/{boothId}/menus")
-    public MenuResponse createMenu(@PathVariable Long boothId,  @RequestBody MenuCreateRequest request) {
-        return menuService.createMenu(boothId, request);
+    public MenuResponse createMenu(@PathVariable Long boothId,  @ModelAttribute MenuCreateForm form) {
+        return menuService.createMenu(boothId, form);
     }
 
+    @DeleteMapping("/api/menus/{menuId}")
+    public ResponseEntity<Void> deleteMenu(@PathVariable Long menuId) {
+        menuService.deleteMenu(menuId);
+        return ResponseEntity.ok().build();
+    }
 }
