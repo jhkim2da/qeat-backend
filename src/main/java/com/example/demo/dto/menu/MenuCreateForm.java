@@ -1,13 +1,18 @@
 package com.example.demo.dto.menu;
 
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 
 
 public class MenuCreateForm{
+    @NotBlank
     private String name;
+
     private String description;
+    @NotBlank
     private Integer price;
+    @NotBlank
     private String category;
     private MultipartFile image;
     private String imageUrl;

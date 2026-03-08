@@ -86,5 +86,13 @@ public class Menu {
         this.category = category;
     }
 
+    public void update(String name, String description, Integer price, String imageUrl, Category category) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.category = category;
+    }
+
     protected Menu() {}
 }

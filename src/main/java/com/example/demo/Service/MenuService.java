@@ -61,4 +61,43 @@ public class MenuService {
         }
         menuRepository.deleteById(menuId);
     }
+
+    @Transactional
+    public void toggleSoldOut(Long menuId) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new IllegalArgumentException("품절 상태를 바꿀 메뉴가 존재하지 않습니다."));
+        if(menu.isSoldOut()) {
+            menu.setSoldOut(false);
+        } else {
+            menu.setSoldOut(true);
+        }
+        menuRepository.save(menu);
+    }
+
+    @Transactional
+    public MenuResponse updateMenu(Long menuId, MenuCreateForm form) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(() -> new IllegalArgumentException("수정을 할 메뉴가 존재하지 않습니다."));
+
+        String imageUrl = menu.getImageUrl();
+
+        if (form.getImage() != null && !form.getImage().isEmpty()) {
+            imageUrl = imageUploader.upload(form.getImage());
+        } else if (form.getImageUrl() != null) {
+            imageUrl = form.getImageUrl();
+        }
+
+        menu.update(
+                form.getName(),
+                form.getDescription(),
+                form.getPrice(),
+                imageUrl,
+                Category.valueOf(form.getCategory())
+        );
+
+        return MenuResponse.from(menu);
+    }
+
+    public MenuResponse getMenuById(Long menuId) {
+        Menu menu = menuRepository.findById(menuId).orElseThrow(() -> new IllegalArgumentException("찾으려는 메뉴가 존재하지 않음"));
+        return MenuResponse.from(menu);
+    }
 }
