@@ -36,6 +36,22 @@ public class Order {
         return boothId;
     }
 
+    public Long getTableId() {
+        return tableId;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     private Order(Long boothId, Long tableId, int totalPrice) {
         this.boothId = boothId;
         this.tableId = tableId;

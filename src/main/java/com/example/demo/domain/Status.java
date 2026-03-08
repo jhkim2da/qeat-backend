@@ -2,6 +2,6 @@ package com.example.demo.domain;
 
 public enum Status {
     CHECK,
-    PREPARING,
+    COOKING,
     DONE
 }

@@ -31,7 +31,7 @@ public class MenuService {
                 .map(MenuResponse::from) // 엔티티 → API 응답용 데이터로 바꾸는 역할
                 .toList();
     }
-
+    @Transactional
     public MenuResponse createMenu(Long boothId, MenuCreateForm form) {
         Booth booth = boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스가 존재하지 않음"));
