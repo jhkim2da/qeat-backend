@@ -24,6 +24,22 @@ public class Booth {
         return id;
     }
 
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     protected Booth() {}
 
     private Booth(String name, String description, Long ownerId) {
