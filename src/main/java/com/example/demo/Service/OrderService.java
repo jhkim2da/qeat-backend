@@ -7,16 +7,18 @@ import com.example.demo.Repository.OrderRepository;
 import com.example.demo.domain.Menu;
 import com.example.demo.domain.Order;
 import com.example.demo.domain.OrderItem;
-import com.example.demo.dto.order.OrderCreateRequest;
-import com.example.demo.dto.order.OrderItemRequest;
-import com.example.demo.dto.order.OrderItemResponse;
-import com.example.demo.dto.order.OrderResponse;
+import com.example.demo.domain.Status;
+import com.example.demo.dto.order.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -97,4 +99,75 @@ public class OrderService {
                 })
                 .toList();
     }
+
+    public void confirmOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        if (order.getStatus() !=  Status.CHECK) {
+            throw new IllegalStateException("주문의 상태가 입금 확인이 아닙니다.");
+        }
+        order.setStatus(Status.COOKING);
+        orderRepository.save(order);
+    }
+
+    public void completeOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        if (order.getStatus() !=  Status.COOKING) {
+            throw new IllegalStateException("주문의 상태가 요리중이 아닙니다.");
+        }
+        order.setStatus(Status.DONE);
+        order.setCompletedAt(LocalDateTime.now());
+        orderRepository.save(order);
+    }
+
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        order.setStatus(Status.CANCELED);
+        orderRepository.save(order);
+    }
+
+    public SalesSummaryResponse getSalesSummary(Long boothId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Order> orders = orderRepository.findByBoothIdAndStatusAndCompletedAtBetween(
+                boothId, Status.DONE, startDate, endDate
+        );
+
+        int totalSales = orders.stream()
+                .mapToInt(Order::getTotalPrice)
+                .sum();
+
+        int totalOrderCount = orders.size();
+
+        Map<LocalDate, List<Order>> groupedByDate = orders.stream()
+                .collect(Collectors.groupingBy(order -> order.getCompletedAt().toLocalDate()));
+
+        List<DailySalesResponse> dailySales = groupedByDate.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    LocalDate date = entry.getKey();
+                    List<Order> dailyOrders = entry.getValue();
+
+                    List<OrderSalesDto> orderSales = dailyOrders.stream()
+                            .sorted(Comparator.comparing(Order::getCompletedAt))
+                            .map(order -> new OrderSalesDto(
+                                    order.getCompletedAt().toLocalTime(),
+                                    order.getTotalPrice()
+                            ))
+                            .toList();
+
+                    return new DailySalesResponse(
+                            date,
+                            dailyOrders.size(),
+                            orderSales
+                    );
+                })
+                .toList();
+
+        return new SalesSummaryResponse(
+                totalSales,
+                totalOrderCount,
+                dailySales
+        );
+    }
+
+
+
 }
