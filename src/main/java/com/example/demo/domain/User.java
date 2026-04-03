@@ -1,7 +1,9 @@
 package com.example.demo.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,7 +15,7 @@ public class User {
     private String major;
 
     @Column(name = "student_number", nullable = false, unique = true)
-    private int studentNumber;
+    private String studentNumber;
 
     private String name;
 
@@ -25,47 +27,15 @@ public class User {
 
     protected User() {}
 
-    public Long getId() {
-        return id;
+
+    public static User create(String studentNumber, String name, String major, Integer grade, Role role) {
+        User user = new User();
+        user.studentNumber = studentNumber;
+        user.name = name;
+        user.major = major;
+        user.grade = grade;
+        user.role = role;
+        return user;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getMajor() {
-        return major;
-    }
-
-    public int getStudentNumber() {
-        return studentNumber;
-    }
-
-    public Integer getGrade() {
-        return grade;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMajor(String major) {
-        this.major = major;
-    }
-
-    public void setStudentNumber(int studentNumber) {
-        this.studentNumber = studentNumber;
-    }
-
-    public void setGrade(Integer grade) {
-        this.grade = grade;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }
