@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.Service.SejongUserService;
+import com.example.demo.dto.auth.LoginResponseDto;
 import com.example.demo.dto.sejong.SejongLoginRequestDto;
-import com.example.demo.dto.sejong.SejongProfileResponseDto;
 import com.example.demo.exception.LoginFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class SejongController {
     @PostMapping("/api/sejong/login")
     public ResponseEntity<?> login(@RequestBody SejongLoginRequestDto loginRequestDto) {
         try {
-            SejongProfileResponseDto response = sejongUserService.login(loginRequestDto);
+            LoginResponseDto response = sejongUserService.login(loginRequestDto);
             return ResponseEntity.ok(response);
         } catch (LoginFailedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
