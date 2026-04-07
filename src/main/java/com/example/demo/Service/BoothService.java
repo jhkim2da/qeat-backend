@@ -25,10 +25,15 @@ public class BoothService {
 
     @Transactional
     public Long createBooth(Long ownerId, BoothCreateRequest request) {
+        String normalizedAccountNumber = request.accountNumber()
+                .replaceAll("[^0-9]", "");
+
         Booth booth = Booth.create(
                 request.name(),
                 request.description(),
-                ownerId
+                ownerId,
+                request.bank(),
+                normalizedAccountNumber
         );
         return boothRepository.save(booth).getId();
     }
@@ -41,13 +46,11 @@ public class BoothService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public BoothDetailResponse getMyBoothDetail(Long ownerId, Long boothId) {
-        Booth booth = boothRepository.findByIdAndOwnerId(ownerId, boothId)
-                .orElseThrow(() -> new IllegalArgumentException("부스 없음"));
-        List<MenuResponse> menus = menuRepository.findByBooth_Id(boothId)
-                .stream()
-                .map(MenuResponse::from)
-                .toList();
-        return BoothDetailResponse.from(booth, menus);
+        Booth booth = boothRepository.findByIdAndOwnerId(boothId, ownerId)
+                .orElseThrow(() -> new RuntimeException("해당 부스를 찾을 수 없습니다."));
+
+        return BoothDetailResponse.from(booth);
     }
 }
