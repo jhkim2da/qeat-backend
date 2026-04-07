@@ -10,16 +10,14 @@ public record BoothDetailResponse(
         Long boothId,
         String name,
         String description,
-        LocalDate createdAt,
-        List<MenuResponse> menus
+        LocalDate createdAt
 ) {
-    public static BoothDetailResponse from(Booth booth, List<MenuResponse> menus) {
+    public static BoothDetailResponse from(Booth booth) {
         return new BoothDetailResponse(
                 booth.getId(),
                 booth.getName(),
                 booth.getDescription(),
-                booth.getCreatedAt(),
-                menus
+                booth.getCreatedAt()
         );
     }
 }

@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface BoothRepository extends JpaRepository<Booth, Long> {
     List<Booth> findAllByOwnerId(Long ownerId);
-    Optional<Booth> findByIdAndOwnerId(Long ownerId, Long boothId);
+    Optional<Booth> findByIdAndOwnerId(Long id, Long ownerId);
 }
