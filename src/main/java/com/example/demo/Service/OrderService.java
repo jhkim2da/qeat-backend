@@ -4,10 +4,7 @@ import com.example.demo.Repository.BoothRepository;
 import com.example.demo.Repository.MenuRepository;
 import com.example.demo.Repository.OrderItemRepository;
 import com.example.demo.Repository.OrderRepository;
-import com.example.demo.domain.Menu;
-import com.example.demo.domain.Order;
-import com.example.demo.domain.OrderItem;
-import com.example.demo.domain.Status;
+import com.example.demo.domain.*;
 import com.example.demo.dto.order.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +36,12 @@ public class OrderService {
 
     @Transactional
     public Long createOrder(Long boothId, OrderCreateRequest request) {
-        boothRepository.findById(boothId)
+        Booth booth =  boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스가 존재하지 않음"));
+
+        if (!booth.canOrder(booth)) {
+            throw new IllegalStateException("현재 영업중이 아닙니다.");
+        }
 
         Map<Long, Menu> menuMap = new HashMap<>();
         int totalPrice = 0;
