@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.Service.OrderService;
+import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.order.OrderCreateRequest;
 import com.example.demo.dto.order.OrderResponse;
 import com.example.demo.dto.order.SalesSummaryResponse;
+import com.example.demo.global.security.CustomUserPrincipal;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,21 +32,34 @@ public class OrderController {
         return orderService.getOrders(boothId);
     }
 
-    @PatchMapping("/api/orders/{orderId}/confirm")
-    public ResponseEntity<Void> confirmOrder(@PathVariable Long orderId) {
-        orderService.confirmOrder(orderId);
+    @PatchMapping("/api/orders/{orderId}/booths/{boothId}/confirm")
+    public ResponseEntity<Void> confirmOrder(
+            @PathVariable Long boothId,
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            ) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        orderService.confirmOrder(boothId, orderId, authUser);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/api/orders/{orderId}/complete")
-    public ResponseEntity<Void> completeOrder(@PathVariable Long orderId) {
-        orderService.completeOrder(orderId);
+    @PatchMapping("/api/orders/{orderId}/booths/{boothId}/complete")
+    public ResponseEntity<Void> completeOrder(
+            @PathVariable Long boothId,
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        orderService.completeOrder(boothId, orderId, authUser);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/api/orders/{orderId}/cancel")
-    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
-        orderService.cancelOrder(orderId);
+    @PatchMapping("/api/orders/{orderId}/booths/{boothId}/cancel")
+    public ResponseEntity<Void> cancelOrder(
+            @PathVariable Long boothId,
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        orderService.cancelOrder(boothId, orderId, authUser);
         return ResponseEntity.ok().build();
     }
 

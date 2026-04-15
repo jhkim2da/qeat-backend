@@ -1,19 +1,28 @@
 package com.example.demo.dto.menu;
 
 
+import com.example.demo.domain.Category;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 
+@Setter
 public class MenuCreateForm{
     @NotBlank
     private String name;
 
     private String description;
-    @NotBlank
+
+    @NotNull
+    @Min(0)
     private Integer price;
-    @NotBlank
-    private String category;
+
+    @NotNull
+    private Category category;
+
     private MultipartFile image;
     private String imageUrl;
 
@@ -29,10 +38,6 @@ public class MenuCreateForm{
         return price;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
     public MultipartFile getImage() {
         return image;
     }
@@ -41,28 +46,9 @@ public class MenuCreateForm{
         return imageUrl;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setImage(MultipartFile image) {
-        this.image = image;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 }
 

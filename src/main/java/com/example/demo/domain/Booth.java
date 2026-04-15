@@ -31,6 +31,10 @@ public class Booth {
     @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "booth_status", nullable = false)
+    private BoothStatus boothStatus;
+
     @Column(nullable = false)
     private boolean open = true;
 
@@ -46,6 +50,7 @@ public class Booth {
         this.ownerId = ownerId;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.boothStatus = BoothStatus.PENDING;
         this.open = true;
         this.openTime = null;
         this.closeTime = null;
@@ -91,5 +96,12 @@ public class Booth {
     public void clearOperatingTime() {
         this.openTime = null;
         this.closeTime = null;
+    }
+    public void approve() {
+        this.boothStatus = BoothStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.boothStatus = BoothStatus.REJECTED;
     }
 }
