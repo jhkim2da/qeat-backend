@@ -1,12 +1,16 @@
 package com.example.demo.Service;
 
 import com.example.demo.Repository.BoothRepository;
-import com.example.demo.Repository.MenuRepository;
+import com.example.demo.Repository.UserRepository;
 import com.example.demo.domain.Booth;
+import com.example.demo.domain.BoothStatus;
+import com.example.demo.domain.Role;
+import com.example.demo.domain.User;
+import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.booth.BoothCreateRequest;
 import com.example.demo.dto.booth.BoothDetailResponse;
 import com.example.demo.dto.booth.BoothMyResponse;
-import com.example.demo.dto.menu.MenuResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +21,11 @@ import java.util.List;
 @Service
 public class BoothService {
     private final BoothRepository boothRepository;
+    private final UserRepository userRepository;
 
-    public BoothService(BoothRepository boothRepository) {
+    public BoothService(BoothRepository boothRepository, UserRepository userRepository) {
         this.boothRepository = boothRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -35,6 +41,32 @@ public class BoothService {
                 normalizedAccountNumber
         );
         return boothRepository.save(booth).getId();
+    }
+
+    @Transactional
+    public void approveBooth(Long boothId, Long  userId) {
+        Booth booth = boothRepository.findById(boothId)
+                .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
+        if(user.getRole() == Role.ADMIN){
+            booth.approve();
+        } else{
+            throw new AccessDeniedException("관리자만 접근 가능합니다.");
+        }
+    }
+
+    @Transactional
+    public void rejectBooth(Long boothId, Long userId) {
+        Booth booth = boothRepository.findById(boothId)
+                .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
+        if(user.getRole() == Role.ADMIN){
+            booth.reject();
+        } else{
+            throw new AccessDeniedException("관리자만 접근 가능합니다.");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -81,9 +113,8 @@ public class BoothService {
     }
 
     @Transactional
-    public Booth updateOperatingTime(Long ownerId, Long boothId, LocalTime openTime, LocalTime closeTime) {
-        Booth booth = boothRepository.findByIdAndOwnerId(boothId, ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
+    public Booth updateOperatingTime(Long boothId, AuthUser authUser, LocalTime openTime, LocalTime closeTime) {
+        Booth booth = getOperableBooth(boothId, authUser);
 
         if (openTime == null || closeTime == null) {
             throw new IllegalArgumentException("시작 시간과 종료 시간은 모두 입력해야 합니다.");
@@ -98,11 +129,27 @@ public class BoothService {
     }
 
     @Transactional
-    public Booth clearOperatingTime(Long ownerId, Long boothId) {
-        Booth booth = boothRepository.findByIdAndOwnerId(boothId, ownerId)
+    public Booth clearOperatingTime(Long boothId, AuthUser authUser) {
+        Booth booth =  getOperableBooth(boothId, authUser);
+        booth.clearOperatingTime();
+        return booth;
+    }
+
+    public Booth getOperableBooth(Long boothId, AuthUser authUser) {
+        Booth booth = boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
 
-        booth.clearOperatingTime();
+        boolean isOwner = booth.getOwnerId().equals(authUser.userId());
+        boolean isAdmin = authUser.role() == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("해당 부스에 접근할 권한이 없습니다.");
+        }
+
+        if (booth.getBoothStatus() != BoothStatus.APPROVED) {
+            throw new IllegalStateException("승인된 부스만 운영할 수 있습니다.");
+        }
+
         return booth;
     }
 }

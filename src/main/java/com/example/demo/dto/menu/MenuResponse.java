@@ -1,5 +1,6 @@
 package com.example.demo.dto.menu;
 
+import com.example.demo.domain.Category;
 import com.example.demo.domain.Menu;
 
 
@@ -8,8 +9,8 @@ public record MenuResponse(
         String name,
         String description,
         int price,
-        String imageUrl,
-        String category
+        Category category,
+        String imageUrl
 ) {
     public static MenuResponse from(Menu menu) {
         return new MenuResponse(
@@ -17,8 +18,8 @@ public record MenuResponse(
                 menu.getName(),
                 menu.getDescription(),
                 menu.getPrice(),
-                menu.getImageUrl(),
-                menu.getCategory().name()
+                menu.getCategory(),
+                menu.getImageUrl()
         );
     }
 }

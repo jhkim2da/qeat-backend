@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.Service.BoothService;
 import com.example.demo.domain.Booth;
+import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.booth.*;
 import com.example.demo.global.security.CustomUserPrincipal;
 import jakarta.validation.Valid;
@@ -83,9 +84,10 @@ public class BoothController {
             @AuthenticationPrincipal CustomUserPrincipal userDetails,
             @RequestBody BoothOperatingTimeRequest request
     ) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
         Booth booth = boothService.updateOperatingTime(
-                userDetails.getId(),
                 boothId,
+                authUser,
                 request.openTime(),
                 request.closeTime()
         );
@@ -98,7 +100,24 @@ public class BoothController {
             @PathVariable Long boothId,
             @AuthenticationPrincipal CustomUserPrincipal userDetails
     ) {
-        Booth booth = boothService.clearOperatingTime(userDetails.getId(), boothId);
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        Booth booth = boothService.clearOperatingTime(boothId, authUser);
         return ResponseEntity.ok(BoothResponse.from(booth));
+    }
+
+    @PatchMapping("/{boothId}/approve")
+    public void approveBooth(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ){
+        boothService.approveBooth(boothId, userDetails.getId());
+    }
+
+    @PatchMapping("/{boothId}/reject")
+    public void rejectBooth(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ){
+        boothService.rejectBooth(boothId, userDetails.getId());
     }
 }

@@ -5,7 +5,9 @@ import com.example.demo.Repository.MenuRepository;
 import com.example.demo.Repository.OrderItemRepository;
 import com.example.demo.Repository.OrderRepository;
 import com.example.demo.domain.*;
+import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.order.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +25,17 @@ public class OrderService {
     private final BoothRepository boothRepository;
     private final MenuRepository menuRepository;
     private final OrderItemRepository orderItemRepository;
+    private final BoothService boothService;
 
     public OrderService(OrderRepository orderRepository,
                         BoothRepository boothRepository,
                         MenuRepository menuRepository,
-                        OrderItemRepository orderItemRepository) {
+                        OrderItemRepository orderItemRepository, BoothService boothService) {
         this.orderRepository = orderRepository;
         this.boothRepository = boothRepository;
         this.menuRepository = menuRepository;
         this.orderItemRepository = orderItemRepository;
+        this.boothService = boothService;
     }
 
     @Transactional
@@ -101,8 +105,13 @@ public class OrderService {
                 .toList();
     }
 
-    public void confirmOrder(Long orderId) {
+    @Transactional
+    public void confirmOrder(Long boothId, Long orderId, AuthUser authUser) {
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
+        if (!order.getBoothId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
+        }
         if (order.getStatus() !=  Status.CHECK) {
             throw new IllegalStateException("주문의 상태가 입금 확인이 아닙니다.");
         }
@@ -110,8 +119,13 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public void completeOrder(Long orderId) {
+    @Transactional
+    public void completeOrder(Long boothId, Long orderId, AuthUser authUser) {
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
+        if (!order.getBoothId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
+        }
         if (order.getStatus() !=  Status.COOKING) {
             throw new IllegalStateException("주문의 상태가 요리중이 아닙니다.");
         }
@@ -120,8 +134,13 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public void cancelOrder(Long orderId) {
+    @Transactional
+    public void cancelOrder(Long boothId, Long orderId, AuthUser authUser) {
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
+        if (!order.getBoothId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
+        }
         order.setStatus(Status.CANCELED);
         orderRepository.save(order);
     }

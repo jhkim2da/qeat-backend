@@ -5,10 +5,12 @@ import com.example.demo.Repository.MenuRepository;
 import com.example.demo.domain.Booth;
 import com.example.demo.domain.Category;
 import com.example.demo.domain.Menu;
+import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.menu.MenuCreateForm;
 import com.example.demo.dto.menu.MenuResponse;
 import com.example.demo.global.imageUploader;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +18,13 @@ import java.util.List;
 @Service
 public class MenuService {
     private final MenuRepository menuRepository;
-    private final BoothRepository boothRepository;
     private final imageUploader imageUploader;
+    private final BoothService boothService;
 
-    public MenuService(MenuRepository menuRepository, BoothRepository boothRepository, imageUploader imageUploader) {
+    public MenuService(MenuRepository menuRepository, imageUploader imageUploader, BoothService boothService) {
         this.menuRepository = menuRepository;
-        this.boothRepository = boothRepository;
         this.imageUploader = imageUploader;
+        this.boothService = boothService;
     }
 
     public List<MenuResponse> getMenusByBooth(Long boothId) {
@@ -32,9 +34,9 @@ public class MenuService {
                 .toList();
     }
     @Transactional
-    public MenuResponse createMenu(Long boothId, MenuCreateForm form) {
-        Booth booth = boothRepository.findById(boothId)
-                .orElseThrow(() -> new IllegalArgumentException("부스가 존재하지 않음"));
+    public MenuResponse createMenu(Long boothId, AuthUser authUser, MenuCreateForm form) {
+
+        Booth booth = boothService.getOperableBooth(boothId,  authUser);
 
         String imageUrl = form.getImageUrl();
 
@@ -47,7 +49,7 @@ public class MenuService {
                 form.getDescription(),
                 form.getPrice(),
                 imageUrl,
-                Category.valueOf(form.getCategory())
+                form.getCategory()
         );
 
         Menu savedMenu = menuRepository.save(menu);
@@ -55,16 +57,24 @@ public class MenuService {
     }
 
     @Transactional
-    public void deleteMenu(Long menuId) {
-        if(!menuRepository.existsById(menuId)) {
-            throw new IllegalArgumentException("삭제할 메뉴가 존재하지 않습니다.");
+    public void deleteMenu(Long boothId, Long menuId, AuthUser authUser) {
+        boothService.getOperableBooth(boothId, authUser);
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 메뉴가 존재하지 않습니다."));
+        if (!menu.getBooth().getId().equals(boothId)) {
+            throw new AccessDeniedException("해당 부스의 메뉴가 아닙니다.");
         }
+
         menuRepository.deleteById(menuId);
     }
 
     @Transactional
-    public void toggleSoldOut(Long menuId) {
+    public void toggleSoldOut(Long boothId, Long menuId,  AuthUser authUser) {
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
         Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new IllegalArgumentException("품절 상태를 바꿀 메뉴가 존재하지 않습니다."));
+        if (!menu.getBooth().getId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 메뉴만 수정할 수 있습니다.");
+        }
         if(menu.isSoldOut()) {
             menu.setSoldOut(false);
         } else {
@@ -74,14 +84,17 @@ public class MenuService {
     }
 
     @Transactional
-    public MenuResponse updateMenu(Long menuId, MenuCreateForm form) {
+    public MenuResponse updateMenu(Long boothId ,Long menuId, AuthUser authUser,MenuCreateForm form) {
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
         Menu menu = menuRepository.findById(menuId).orElseThrow(() -> new IllegalArgumentException("수정을 할 메뉴가 존재하지 않습니다."));
-
+        if (!menu.getBooth().getId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 메뉴만 수정할 수 있습니다.");
+        }
         String imageUrl = menu.getImageUrl();
 
         if (form.getImage() != null && !form.getImage().isEmpty()) {
             imageUrl = imageUploader.upload(form.getImage());
-        } else if (form.getImageUrl() != null) {
+        } else if (form.getImageUrl() != null && !form.getImageUrl().isBlank()) {
             imageUrl = form.getImageUrl();
         }
 
@@ -90,7 +103,7 @@ public class MenuService {
                 form.getDescription(),
                 form.getPrice(),
                 imageUrl,
-                Category.valueOf(form.getCategory())
+                form.getCategory()
         );
 
         return MenuResponse.from(menu);
