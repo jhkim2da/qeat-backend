@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qeat 주문</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f6f7f9;
+            color: #202124;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #ffffff;
+            border-bottom: 1px solid #e8eaed;
+            padding: 16px;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            color: #5f6368;
+            font-size: 13px;
+        }
+
+        h1 {
+            margin: 10px 0 0;
+            font-size: 21px;
+            line-height: 1.25;
+        }
+
+        .table-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #e9f0ff;
+            color: #1a4fd7;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        main {
+            padding: 12px 0 120px;
+        }
+
+        .menu-item {
+            display: grid;
+            grid-template-columns: 1fr 88px;
+            gap: 12px;
+            background: #ffffff;
+            border-bottom: 1px solid #edf0f2;
+            padding: 16px;
+        }
+
+        .menu-name {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .menu-description {
+            min-height: 18px;
+            margin: 0 0 10px;
+            color: #5f6368;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .menu-price {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .menu-image {
+            width: 88px;
+            height: 88px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #e8eaed;
+        }
+
+        .sold-out {
+            color: #9aa0a6;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .quantity-control {
+            display: inline-grid;
+            grid-template-columns: 34px 36px 34px;
+            align-items: center;
+            margin-top: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-control button {
+            width: 34px;
+            height: 32px;
+            border: 0;
+            background: #ffffff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .quantity-control span {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .empty {
+            padding: 40px 16px;
+            color: #5f6368;
+            text-align: center;
+        }
+
+        .order-bar {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: #ffffff;
+            border-top: 1px solid #e8eaed;
+            padding: 12px 16px 16px;
+        }
+
+        .order-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .order-button {
+            width: 100%;
+            height: 46px;
+            border: 0;
+            border-radius: 8px;
+            background: #202124;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .order-button:disabled {
+            background: #bdc1c6;
+            cursor: default;
+        }
+
+        .message {
+            min-height: 18px;
+            margin-top: 8px;
+            color: #1a73e8;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .completion {
+            display: none;
+            min-height: calc(100vh - 120px);
+            padding: 64px 24px 140px;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .completion.visible {
+            display: block;
+        }
+
+        .completion-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #e6f4ea;
+            color: #137333;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .completion h2 {
+            margin: 18px 0 8px;
+            font-size: 22px;
+        }
+
+        .completion p {
+            margin: 6px 0;
+            color: #5f6368;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .order-number {
+            margin: 18px auto;
+            padding: 14px 18px;
+            max-width: 240px;
+            border-radius: 8px;
+            background: #f1f3f4;
+            font-size: 16px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="meta">
+        <span>Qeat</span>
+        <span th:text="${booth.open} ? '영업중' : '영업중지'">영업중</span>
+    </div>
+    <h1 th:text="${booth.name}">부스명</h1>
+    <div class="table-badge" th:text="|테이블 ${table.tableNumber}번|">테이블 1번</div>
+</header>
+
+<main id="menuArea">
+    <div class="empty" th:if="${#lists.isEmpty(menus)}">
+        등록된 메뉴가 없습니다.
+    </div>
+
+    <article class="menu-item"
+             th:each="menu : ${menus}"
+             th:attr="data-menu-id=${menu.id()}, data-price=${menu.price()}, data-sold-out=${menu.soldOut()}">
+        <div>
+            <h2 class="menu-name" th:text="${menu.name()}">메뉴명</h2>
+            <p class="menu-description" th:text="${menu.description()}">메뉴 설명</p>
+            <div class="menu-price" th:text="${#numbers.formatInteger(menu.price(), 0, 'COMMA')} + '원'">0원</div>
+            <div class="sold-out" th:if="${menu.soldOut()}">품절</div>
+            <div class="quantity-control" th:if="${!menu.soldOut()}">
+                <button type="button" class="decrease" aria-label="수량 감소">-</button>
+                <span class="quantity">0</span>
+                <button type="button" class="increase" aria-label="수량 증가">+</button>
+            </div>
+        </div>
+        <img class="menu-image"
+             th:if="${menu.imageUrl() != null}"
+             th:src="${menu.imageUrl()}"
+             alt="">
+        <div class="menu-image" th:if="${menu.imageUrl() == null}"></div>
+    </article>
+</main>
+
+<section id="completionArea" class="completion">
+    <div class="completion-icon">✓</div>
+    <h2>주문이 접수되었습니다.</h2>
+    <div id="orderNumber" class="order-number">주문번호: -</div>
+    <p>입금 확인 후 조리가 시작됩니다.</p>
+    <p>잠시만 기다려 주세요.</p>
+</section>
+
+<div id="orderBar" class="order-bar">
+    <div class="order-summary">
+        <span id="totalCount">총 0개</span>
+        <span id="totalPrice">0원</span>
+    </div>
+    <button id="orderButton" class="order-button" type="button" disabled>주문하기</button>
+    <div id="message" class="message"></div>
+</div>
+
+<script th:inline="javascript">
+    const tableToken = /*[[${tableToken}]]*/ "";
+    const quantities = new Map();
+
+    const formatPrice = (value) => `${value.toLocaleString("ko-KR")}원`;
+
+    function updateSummary() {
+        let totalCount = 0;
+        let totalPrice = 0;
+
+        document.querySelectorAll(".menu-item").forEach((item) => {
+            const menuId = Number(item.dataset.menuId);
+            const price = Number(item.dataset.price);
+            const quantity = quantities.get(menuId) || 0;
+            totalCount += quantity;
+            totalPrice += price * quantity;
+        });
+
+        document.getElementById("totalCount").textContent = `총 ${totalCount}개`;
+        document.getElementById("totalPrice").textContent = formatPrice(totalPrice);
+        document.getElementById("orderButton").disabled = totalCount === 0;
+    }
+
+    document.querySelectorAll(".menu-item").forEach((item) => {
+        const menuId = Number(item.dataset.menuId);
+        const quantityEl = item.querySelector(".quantity");
+        const decrease = item.querySelector(".decrease");
+        const increase = item.querySelector(".increase");
+
+        if (!quantityEl || !decrease || !increase) {
+            return;
+        }
+
+        decrease.addEventListener("click", () => {
+            const next = Math.max((quantities.get(menuId) || 0) - 1, 0);
+            quantities.set(menuId, next);
+            quantityEl.textContent = String(next);
+            updateSummary();
+        });
+
+        increase.addEventListener("click", () => {
+            const next = (quantities.get(menuId) || 0) + 1;
+            quantities.set(menuId, next);
+            quantityEl.textContent = String(next);
+            updateSummary();
+        });
+    });
+
+    document.getElementById("orderButton").addEventListener("click", async () => {
+        const items = Array.from(quantities.entries())
+            .filter(([, quantity]) => quantity > 0)
+            .map(([menuId, quantity]) => ({ menuId, quantity }));
+
+        if (items.length === 0) {
+            return;
+        }
+
+        const button = document.getElementById("orderButton");
+        const message = document.getElementById("message");
+        button.disabled = true;
+        message.textContent = "주문을 전송하는 중입니다.";
+
+        try {
+            const response = await fetch(`/api/public/tables/${tableToken}/orders`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ items })
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const orderId = await response.json();
+            document.getElementById("menuArea").style.display = "none";
+            document.getElementById("orderBar").style.display = "none";
+            document.getElementById("orderNumber").textContent = `주문번호: ${orderId}`;
+            document.getElementById("completionArea").classList.add("visible");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (error) {
+            message.textContent = "주문에 실패했습니다. 다시 시도해 주세요.";
+            button.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

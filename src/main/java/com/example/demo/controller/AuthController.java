@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.Service.SejongUserService;
+import com.example.demo.Service.UserService;
+import com.example.demo.domain.User;
 import com.example.demo.dto.auth.LoginResponseDto;
 import com.example.demo.dto.sejong.SejongLoginRequestDto;
 import com.example.demo.global.security.CustomUserPrincipal;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class AuthController {
 
     private final SejongUserService sejongUserService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
@@ -59,5 +62,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "message", "로그아웃 성공"
         ));
+    }
+
+    @PostMapping("/bootstrap-admin")
+    public ResponseEntity<LoginResponseDto> bootstrapAdmin(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userService.bootstrapAdmin(principal.getId());
+        return ResponseEntity.ok(LoginResponseDto.from(user));
     }
 }

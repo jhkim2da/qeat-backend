@@ -5,6 +5,7 @@ import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.dto.sejong.SejongProfileResponseDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -41,5 +42,18 @@ public class UserService {
         );
 
         return userRepository.save(newUser);
+    }
+
+    @Transactional
+    public User bootstrapAdmin(Long userId) {
+        if (userRepository.existsByRole(Role.ADMIN)) {
+            throw new IllegalStateException("이미 ADMIN 사용자가 존재합니다.");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.changeRole(Role.ADMIN);
+        return user;
     }
 }

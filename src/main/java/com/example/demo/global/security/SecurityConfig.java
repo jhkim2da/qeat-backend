@@ -23,11 +23,13 @@ public class SecurityConfig {
                                 "/login",
                                 "/api/auth/login",
                                 "/api/auth/me",
+                                "/api/public/**",
                                 "/qr/**",
                                 "/public/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("OPERATOR", "ADMIN")
