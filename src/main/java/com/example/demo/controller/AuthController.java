@@ -5,6 +5,7 @@ import com.example.demo.Service.UserService;
 import com.example.demo.domain.User;
 import com.example.demo.dto.auth.LoginResponseDto;
 import com.example.demo.dto.sejong.SejongLoginRequestDto;
+import com.example.demo.exception.ErrorResponse;
 import com.example.demo.global.security.CustomUserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -38,7 +39,7 @@ public class AuthController {
     public ResponseEntity<?> me(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserPrincipal principal)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "로그인되지 않았습니다."));
+                    .body(new ErrorResponse("로그인되지 않았습니다."));
         }
 
         return ResponseEntity.ok(Map.of(
@@ -65,9 +66,10 @@ public class AuthController {
     }
 
     @PostMapping("/bootstrap-admin")
-    public ResponseEntity<LoginResponseDto> bootstrapAdmin(Authentication authentication) {
+    public ResponseEntity<?> bootstrapAdmin(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserPrincipal principal)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("로그인되지 않았습니다."));
         }
 
         User user = userService.bootstrapAdmin(principal.getId());
