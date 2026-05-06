@@ -6,6 +6,7 @@ import com.example.demo.domain.BoothTable;
 import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.global.security.TableTokenGenerator;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,17 @@ import java.util.List;
 public class TableService {
     BoothTableRepository boothTableRepository;
     BoothService boothService;
+    QrCodeService qrCodeService;
+    private final String qrBaseUrl;
 
-    public TableService(BoothTableRepository boothTableRepository, BoothService boothService) {
+    public TableService(BoothTableRepository boothTableRepository,
+                        BoothService boothService,
+                        QrCodeService qrCodeService,
+                        @Value("${qr.base-url}") String qrBaseUrl) {
         this.boothTableRepository = boothTableRepository;
         this.boothService = boothService;
+        this.qrCodeService = qrCodeService;
+        this.qrBaseUrl = qrBaseUrl;
     }
     public List<BoothTable> getTables(Long boothId, AuthUser authUser) {
         boothService.getOperableBooth(boothId, authUser);
@@ -44,6 +52,9 @@ public class TableService {
         String token = createUniqueTableToken();
 
         BoothTable boothTable = new BoothTable(booth, tableNumber, token);
+        String qrUrl = qrBaseUrl + "/qr/" + token;
+        String qrImageUrl = qrCodeService.generateQrImage(qrUrl, token);
+        boothTable.setQrImageUrl(qrImageUrl);
 
         return boothTableRepository.save(boothTable);
     }

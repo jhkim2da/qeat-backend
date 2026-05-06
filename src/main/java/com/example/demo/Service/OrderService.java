@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 
 import com.example.demo.Repository.BoothRepository;
+import com.example.demo.Repository.BoothTableRepository;
 import com.example.demo.Repository.MenuRepository;
 import com.example.demo.Repository.OrderItemRepository;
 import com.example.demo.Repository.OrderRepository;
@@ -25,16 +26,20 @@ public class OrderService {
     private final BoothRepository boothRepository;
     private final MenuRepository menuRepository;
     private final OrderItemRepository orderItemRepository;
+    private final BoothTableRepository boothTableRepository;
     private final BoothService boothService;
 
     public OrderService(OrderRepository orderRepository,
                         BoothRepository boothRepository,
                         MenuRepository menuRepository,
-                        OrderItemRepository orderItemRepository, BoothService boothService) {
+                        OrderItemRepository orderItemRepository,
+                        BoothTableRepository boothTableRepository,
+                        BoothService boothService) {
         this.orderRepository = orderRepository;
         this.boothRepository = boothRepository;
         this.menuRepository = menuRepository;
         this.orderItemRepository = orderItemRepository;
+        this.boothTableRepository = boothTableRepository;
         this.boothService = boothService;
     }
 
@@ -42,6 +47,17 @@ public class OrderService {
     public Long createOrder(Long boothId, OrderCreateRequest request) {
         Booth booth =  boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스가 존재하지 않음"));
+
+        BoothTable table = boothTableRepository.findById(request.tableId())
+                .orElseThrow(() -> new IllegalArgumentException("테이블이 존재하지 않습니다."));
+
+        if (!table.isActive()) {
+            throw new IllegalStateException("비활성화된 테이블입니다.");
+        }
+
+        if (!table.getBooth().getId().equals(boothId)) {
+            throw new IllegalStateException("해당 부스의 테이블이 아닙니다.");
+        }
 
         if (!booth.canOrder(booth)) {
             throw new IllegalStateException("현재 영업중이 아닙니다.");
@@ -89,18 +105,33 @@ public class OrderService {
         return order.getId();
     }
 
+    @Transactional
+    public Long createOrderByTableToken(String tableToken, PublicOrderCreateRequest request) {
+        BoothTable table = boothTableRepository.findByTableTokenAndActiveTrue(tableToken)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 테이블 QR입니다."));
+
+        return createOrder(
+                table.getBooth().getId(),
+                new OrderCreateRequest(table.getId(), request.items())
+        );
+    }
+
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrders(Long boothId) {
         List<Order> orders = orderRepository.findByBoothId(boothId);
 
         return orders.stream()
                 .map(order -> {
+                    Integer tableNumber = boothTableRepository.findById(order.getTableId())
+                            .map(BoothTable::getTableNumber)
+                            .orElse(null);
+
                     List<OrderItemResponse> itemResponses = orderItemRepository.findByOrderId(order.getId())
                             .stream()
                             .map(OrderItemResponse::from)
                             .toList();
 
-                    return OrderResponse.from(order, itemResponses);
+                    return OrderResponse.from(order, tableNumber, itemResponses);
                 })
                 .toList();
     }

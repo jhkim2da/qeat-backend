@@ -1,4 +1,9 @@
 HELP.md
+.DS_Store
+**/.DS_Store
+.env
+.env.*
+!.env.example
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -35,4 +40,3 @@ out/
 
 ### VS Code ###
 .vscode/
-

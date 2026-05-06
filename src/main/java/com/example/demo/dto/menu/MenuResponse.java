@@ -10,7 +10,8 @@ public record MenuResponse(
         String description,
         int price,
         Category category,
-        String imageUrl
+        String imageUrl,
+        boolean soldOut
 ) {
     public static MenuResponse from(Menu menu) {
         return new MenuResponse(
@@ -19,7 +20,8 @@ public record MenuResponse(
                 menu.getDescription(),
                 menu.getPrice(),
                 menu.getCategory(),
-                menu.getImageUrl()
+                menu.getImageUrl(),
+                menu.isSoldOut()
         );
     }
 }

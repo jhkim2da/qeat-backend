@@ -28,7 +28,7 @@ public class MenuService {
     }
 
     public List<MenuResponse> getMenusByBooth(Long boothId) {
-        return menuRepository.findByBooth_IdAndSoldOutFalse(boothId)
+        return menuRepository.findByBooth_Id(boothId)
                 .stream()
                 .map(MenuResponse::from) // 엔티티 → API 응답용 데이터로 바꾸는 역할
                 .toList();
