@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.Service.BoothService;
+import com.example.demo.service.BoothService;
 import com.example.demo.domain.Booth;
 import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.booth.*;

@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.Service.SejongUserService;
-import com.example.demo.Service.UserService;
+import com.example.demo.service.SejongUserService;
+import com.example.demo.service.UserService;
 import com.example.demo.domain.User;
 import com.example.demo.dto.auth.LoginResponseDto;
 import com.example.demo.dto.sejong.SejongLoginRequestDto;

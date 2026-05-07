@@ -1,4 +1,4 @@
-package com.example.demo.Repository;
+package com.example.demo.repository;
 
 import com.example.demo.domain.BoothTable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,13 @@ public interface BoothTableRepository extends JpaRepository<BoothTable, Long> {
 
     boolean existsByBooth_IdAndTableNumber(Long boothId, int tableNumber);
 
+    Optional<BoothTable> findByBooth_IdAndTableNumber(Long boothId, int tableNumber);
+
     Optional<BoothTable> findByTableTokenAndActiveTrue(String tableToken);
 
-    List<BoothTable> findAllByBooth_IdAndActiveTrue(Long boothId);
+    List<BoothTable> findAllByBooth_Id(Long boothId);
+
+    List<BoothTable> findAllByBooth_IdOrderByTableNumberAsc(Long boothId);
+
+    List<BoothTable> findAllByBooth_IdAndActiveTrueOrderByTableNumberAsc(Long boothId);
 }

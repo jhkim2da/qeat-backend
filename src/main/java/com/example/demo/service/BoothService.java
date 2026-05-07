@@ -1,7 +1,7 @@
-package com.example.demo.Service;
+package com.example.demo.service;
 
-import com.example.demo.Repository.BoothRepository;
-import com.example.demo.Repository.UserRepository;
+import com.example.demo.repository.BoothRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.domain.Booth;
 import com.example.demo.domain.BoothStatus;
 import com.example.demo.domain.Role;

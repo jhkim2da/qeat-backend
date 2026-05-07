@@ -1,11 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.Repository.BoothTableRepository;
-import com.example.demo.Repository.MenuRepository;
-import com.example.demo.Service.OrderService;
+import com.example.demo.repository.BoothTableRepository;
+import com.example.demo.repository.MenuRepository;
+import com.example.demo.service.OrderService;
 import com.example.demo.domain.BoothTable;
 import com.example.demo.dto.menu.MenuResponse;
 import com.example.demo.dto.order.PublicOrderCreateRequest;
+import com.example.demo.dto.table.PublicTableMenuResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -48,6 +50,20 @@ public class QrController {
         model.addAttribute("menus", menus);
 
         return "qr-menu";
+    }
+
+    @ResponseBody
+    @GetMapping("/api/public/tables/{tableToken}")
+    public PublicTableMenuResponse getTableMenu(@PathVariable String tableToken) {
+        BoothTable table = boothTableRepository.findByTableTokenAndActiveTrue(tableToken)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 테이블 QR입니다."));
+
+        List<MenuResponse> menus = menuRepository.findByBooth_Id(table.getBooth().getId())
+                .stream()
+                .map(MenuResponse::from)
+                .toList();
+
+        return PublicTableMenuResponse.from(table, menus);
     }
 
     @PostMapping("/api/public/tables/{tableToken}/orders")

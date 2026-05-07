@@ -1,6 +1,6 @@
-package com.example.demo.Service;
+package com.example.demo.service;
 
-import com.example.demo.Repository.UserRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.domain.Role;
 import com.example.demo.domain.User;
 import com.example.demo.dto.sejong.SejongProfileResponseDto;
