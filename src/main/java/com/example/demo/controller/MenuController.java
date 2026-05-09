@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.Service.MenuService;
+import com.example.demo.service.MenuService;
 import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.menu.MenuCreateForm;
 import com.example.demo.dto.menu.MenuResponse;

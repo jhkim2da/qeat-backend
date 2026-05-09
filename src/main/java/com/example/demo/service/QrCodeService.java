@@ -1,4 +1,4 @@
-package com.example.demo.Service;
+package com.example.demo.service;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;

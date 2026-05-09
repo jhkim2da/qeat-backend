@@ -1,10 +1,10 @@
-package com.example.demo.Service;
+package com.example.demo.service;
 
-import com.example.demo.Repository.BoothRepository;
-import com.example.demo.Repository.BoothTableRepository;
-import com.example.demo.Repository.MenuRepository;
-import com.example.demo.Repository.OrderItemRepository;
-import com.example.demo.Repository.OrderRepository;
+import com.example.demo.repository.BoothRepository;
+import com.example.demo.repository.BoothTableRepository;
+import com.example.demo.repository.MenuRepository;
+import com.example.demo.repository.OrderItemRepository;
+import com.example.demo.repository.OrderRepository;
 import com.example.demo.domain.*;
 import com.example.demo.dto.auth.AuthUser;
 import com.example.demo.dto.order.*;
