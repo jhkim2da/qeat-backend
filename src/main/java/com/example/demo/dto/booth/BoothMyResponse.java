@@ -5,6 +5,7 @@ import com.example.demo.domain.Bank;
 import com.example.demo.domain.BoothStatus;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public record BoothMyResponse(
         Long boothId,
@@ -13,6 +14,10 @@ public record BoothMyResponse(
         Bank bank,
         String accountNumber,
         BoothStatus boothStatus,
+        boolean open,
+        LocalTime openTime,
+        LocalTime closeTime,
+        boolean canOrder,
         LocalDate createdAt
 ) {
     public static BoothMyResponse from(Booth booth) {
@@ -23,6 +28,10 @@ public record BoothMyResponse(
                 booth.getBank(),
                 booth.getAccountNumber(),
                 booth.getBoothStatus(),
+                booth.isOpen(),
+                booth.getOpenTime(),
+                booth.getCloseTime(),
+                booth.canOrder(booth),
                 booth.getCreatedAt()
         );
     }

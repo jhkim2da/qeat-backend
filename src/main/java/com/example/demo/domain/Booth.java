@@ -73,6 +73,10 @@ public class Booth {
     }
 
     public boolean canOrder(Booth booth) {
+        if (booth.getBoothStatus() != BoothStatus.APPROVED) {
+            return false;
+        }
+
         if (!booth.isOpen()) {
             return false;
         }
@@ -103,5 +107,15 @@ public class Booth {
 
     public void reject() {
         this.boothStatus = BoothStatus.REJECTED;
+    }
+
+    public void suspend() {
+        this.boothStatus = BoothStatus.SUSPENDED;
+        this.open = false;
+    }
+
+    public void delete() {
+        this.boothStatus = BoothStatus.DELETED;
+        this.open = false;
     }
 }
