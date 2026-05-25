@@ -4,6 +4,7 @@ import com.example.demo.domain.Order;
 import com.example.demo.domain.Status;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderResponse {
@@ -12,14 +13,25 @@ public class OrderResponse {
     private Integer tableNumber;
     private Status status;
     private int totalPrice;
+    private LocalDateTime createdAt;
+    private LocalDateTime completedAt;
     private List<OrderItemResponse> items;
 
-    public OrderResponse(Long orderId, Long tableId, Integer tableNumber, Status status, int totalPrice, List<OrderItemResponse> items) {
+    public OrderResponse(Long orderId,
+                         Long tableId,
+                         Integer tableNumber,
+                         Status status,
+                         int totalPrice,
+                         LocalDateTime createdAt,
+                         LocalDateTime completedAt,
+                         List<OrderItemResponse> items) {
         this.orderId = orderId;
         this.tableId = tableId;
         this.tableNumber = tableNumber;
         this.status = status;
         this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.completedAt = completedAt;
         this.items = items;
     }
 
@@ -31,6 +43,8 @@ public class OrderResponse {
                 tableNumber,
                 order.getStatus(),
                 order.getTotalPrice(),
+                order.getCreatedAt(),
+                order.getCompletedAt(),
                 items
         );
     }
@@ -53,6 +67,14 @@ public class OrderResponse {
 
     public int getTotalPrice() {
         return totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
     }
 
     public List<OrderItemResponse> getItems() {

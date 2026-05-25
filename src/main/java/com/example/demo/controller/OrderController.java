@@ -28,8 +28,12 @@ public class OrderController {
     }
 
     @GetMapping("/api/booths/{boothId}/orders")
-    public  List<OrderResponse> getOrders(@PathVariable Long boothId) {
-        return orderService.getOrders(boothId);
+    public List<OrderResponse> getOrders(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        return orderService.getOrders(boothId, authUser);
     }
 
     @PatchMapping("/api/orders/{orderId}/booths/{boothId}/confirm")

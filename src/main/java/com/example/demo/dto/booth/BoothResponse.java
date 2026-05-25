@@ -12,6 +12,7 @@ import java.time.LocalTime;
 public class BoothResponse {
 
     private Long id;
+    private Long boothId;
     private String name;
     private Bank bank;
     private String accountNumber;
@@ -19,9 +20,11 @@ public class BoothResponse {
     private boolean open;
     private LocalTime openTime;
     private LocalTime closeTime;
+    private boolean canOrder;
 
     public static BoothResponse from(Booth booth) {
         return new BoothResponse(
+                booth.getId(),
                 booth.getId(),
                 booth.getName(),
                 booth.getBank(),
@@ -29,7 +32,8 @@ public class BoothResponse {
                 booth.getDescription(),
                 booth.isOpen(),
                 booth.getOpenTime(),
-                booth.getCloseTime()
+                booth.getCloseTime(),
+                booth.canOrder(booth)
         );
     }
 }

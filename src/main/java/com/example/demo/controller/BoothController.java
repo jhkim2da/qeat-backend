@@ -45,6 +45,40 @@ public class BoothController {
         return ResponseEntity.ok(booths);
     }
 
+    @GetMapping("/my/approved")
+    public ResponseEntity<List<BoothMyResponse>> getMyApprovedBooths(
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        Long ownerId = principal.getId();
+        List<BoothMyResponse> booths = boothService.getMyApprovedBooths(ownerId);
+        return ResponseEntity.ok(booths);
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<BoothMyResponse>> getPendingBooths(
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        List<BoothMyResponse> booths = boothService.getPendingBooths(userDetails.getId());
+        return ResponseEntity.ok(booths);
+    }
+
+    @GetMapping("/operators")
+    public ResponseEntity<List<BoothOperatorResponse>> getBoothOperators(
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        List<BoothOperatorResponse> operators = boothService.getBoothOperators(userDetails.getId());
+        return ResponseEntity.ok(operators);
+    }
+
+    @GetMapping("/operators/{operatorId}")
+    public ResponseEntity<BoothOperatorDetailResponse> getBoothOperatorDetail(
+            @PathVariable Long operatorId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        BoothOperatorDetailResponse response = boothService.getBoothOperatorDetail(operatorId, userDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/my/{boothId}")
     public ResponseEntity<BoothDetailResponse> getBooth(
             @AuthenticationPrincipal CustomUserPrincipal principal,
@@ -61,6 +95,25 @@ public class BoothController {
             @Valid @RequestBody BoothCreateRequest request
     ) {
         Booth booth = boothService.updateBooth(userDetails.getId() , boothId, request);
+        return ResponseEntity.ok(BoothResponse.from(booth));
+    }
+
+    @DeleteMapping("/{boothId}")
+    public ResponseEntity<Void> deleteBooth(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        boothService.deleteBooth(boothId, authUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{boothId}/suspend")
+    public ResponseEntity<BoothResponse> suspendBooth(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        Booth booth = boothService.suspendBooth(boothId, userDetails.getId());
         return ResponseEntity.ok(BoothResponse.from(booth));
     }
 

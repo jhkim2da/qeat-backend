@@ -117,8 +117,10 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrders(Long boothId) {
-        List<Order> orders = orderRepository.findByBoothId(boothId);
+    public List<OrderResponse> getOrders(Long boothId, AuthUser authUser) {
+        boothService.getOperableBooth(boothId, authUser);
+
+        List<Order> orders = orderRepository.findByBoothIdOrderByCreatedAtDescIdDesc(boothId);
 
         return orders.stream()
                 .map(order -> {
