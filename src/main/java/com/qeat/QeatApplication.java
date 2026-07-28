@@ -1,0 +1,13 @@
+package com.qeat;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class QeatApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(QeatApplication.class, args);
+	}
+
+}
