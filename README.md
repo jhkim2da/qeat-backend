@@ -1,4 +1,4 @@
-<img width="753" height="438" alt="image" src="https://github.com/user-attachments/assets/b2a6ea9e-1728-4dfb-aa9f-de00658b968e" /># Qeat Backend
+## Qeat Backend
 
 세종대학교 축제 부스 운영을 위한 QR 주문 관리 시스템의 백엔드입니다.  
 사용자는 테이블 QR을 통해 메뉴를 조회하고 주문할 수 있고, 운영자는 부스, 메뉴, 테이블, 주문, 매출을 관리할 수 있습니다.
@@ -11,7 +11,6 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - 손님: QR 접속 후 비로그인 주문
 - 운영자: 부스/메뉴/주문/매출 관리
 - 관리자: 부스 승인 및 운영자 관리
-  <img width="753" height="438" alt="image" src="https://github.com/user-attachments/assets/2f85fe00-d85c-4590-9b9f-d7d29267d4c1" />
 
 
 ![Qeat Service Intro](docs/images/service-intro.png)
