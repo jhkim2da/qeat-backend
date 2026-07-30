@@ -12,6 +12,8 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - 운영자: 부스/메뉴/주문/매출 관리
 - 관리자: 부스 승인 및 운영자 관리
 
+![Qeat Service Intro](docs/images/service-intro.png)
+
 ## My Role
 
 이 프로젝트에서 저는 **Spring Boot 기반 백엔드 개발**을 담당했습니다.
@@ -31,6 +33,13 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - Database: MySQL 8.4, Docker Compose
 - Template / Utility: Thymeleaf, Jsoup, ZXing
 - Build: Gradle
+
+## Service Flow
+
+손님은 QR 스캔 후 바로 주문하고, 운영자는 실시간으로 주문을 받아 상태를 변경합니다.  
+관리자는 전체 부스와 운영자 상태를 한 곳에서 관리합니다.
+
+![Qeat Service Flow](docs/images/service-flow.png)
 
 ## Main Features
 
@@ -54,6 +63,8 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - 테이블별 QR 토큰 발급
 - QR 접근 시 메뉴 조회 및 주문 가능
 
+![Guest Menu and Cart](docs/images/guest-menu-cart.png)
+
 ### 5. 주문 관리
 - 주문 생성
 - 주문 상태 변경
@@ -62,9 +73,28 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
   - 완료
   - 취소
 
-### 6. 매출 조회
+![Guest Order Complete](docs/images/guest-order-complete.png)
+
+### 6. 운영자 주문 처리
+- 새 주문 실시간 수신
+- 클릭 한 번으로 주문 상태 변경
+- 접수 대기 / 조리 중 / 처리 완료 흐름 관리
+
+![Owner Realtime Orders](docs/images/owner-order-realtime.png)
+
+### 7. 메뉴 및 매출 관리
+- 메뉴 등록 / 수정 / 삭제 / 품절 처리
 - 기간별 총 매출 조회
 - 일자별 주문 수 / 매출 집계
+
+![Owner Menu and Sales](docs/images/owner-menu-sales.png)
+
+### 8. 관리자 승인 및 운영 관리
+- 부스 신청 승인 / 대기 현황 관리
+- 운영자별 부스 목록 조회
+- 부스별 운영 중지 / 복구 관리
+
+![Admin Booth Approval](docs/images/admin-booth-approval.png)
 
 ## Project Structure
 
