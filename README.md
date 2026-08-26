@@ -21,16 +21,17 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - 부스, 메뉴, 테이블, 주문, 매출 도메인 설계
 - REST API 구현
 - Spring Security 기반 권한 처리
-- 세션 기반 인증 처리
+- 세션 기반 인증 처리 (Redis 세션 저장)
 - MySQL 연동 및 JPA 기반 데이터 관리
 - QR 주문 흐름 및 테이블 토큰 처리
+- Redis를 활용한 공개 메뉴 캐시와 공개 주문 제한
 
 프론트엔드는 팀원이 **React**로 담당했습니다.
 
 ## Tech Stack
 
-- Backend: Java 21, Spring Boot, Spring Web, Spring Data JPA, Spring Security
-- Database: MySQL 8.4, Docker Compose
+- Backend: Java 21, Spring Boot, Spring Web, Spring Data JPA, Spring Security, Spring Session
+- Database / Cache: MySQL 8.4, Redis 7.4, Docker Compose
 - Template / Utility: Thymeleaf, Jsoup, ZXing
 - Build: Gradle
 
@@ -46,6 +47,7 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 ### 1. 인증 및 사용자 처리
 - 세종대학교 로그인 정보 기반 인증
 - JSESSIONID 세션 쿠키 기반 인증 유지
+- 세션은 Redis에 저장해 서버가 늘어나도 로그인이 유지됨
 - 운영자 / 관리자 권한 분리
 
 ### 2. 부스 관리
@@ -57,11 +59,14 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
 - 메뉴 등록, 조회, 수정, 삭제
 - 이미지 업로드
 - 품절 상태 관리
+- 메뉴 등록/수정/삭제/품절 시 공개 메뉴 Redis 캐시 무효화
 
 ### 4. 테이블 및 QR 주문
 - 부스별 테이블 생성 및 일괄 생성
 - 테이블별 QR 토큰 발급
 - QR 접근 시 메뉴 조회 및 주문 가능
+- 공개 메뉴 조회(`GET /api/public/tables/{token}`)는 Redis에 5분 캐시
+- `canOrder`는 캐시하지 않고 요청마다 계산
 
 ![Guest Menu and Cart](docs/images/guest-menu-cart.png)
 
@@ -72,6 +77,8 @@ Qeat은 대학 축제처럼 짧은 시간 안에 주문이 몰리는 환경에�
   - 조리 중
   - 완료
   - 취소
+- 공개 주문은 같은 테이블+IP 기준 1분에 20회까지 허용, 초과 시 429
+- 주문 원본은 MySQL에 저장
 
 ![Guest Order Complete](docs/images/guest-order-complete.png)
 
@@ -107,6 +114,7 @@ com.qeat
 ├── dto
 ├── exception
 └── global
+    ├── redis
     └── security
 ```
 
@@ -182,6 +190,10 @@ http://localhost:9090
 - `POST /api/booths/{boothId}/tables`
 - `POST /api/booths/{boothId}/tables/bulk`
 
+### 공개 QR
+- `GET /api/public/tables/{tableToken}`
+- `POST /api/public/tables/{tableToken}/orders`
+
 ### 주문
 - `POST /api/booths/{boothId}/orders`
 - `GET /api/booths/{boothId}/orders`
@@ -216,6 +228,7 @@ axios.get("http://localhost:9090/api/auth/me", {
 - 이 레포는 **백엔드 프로젝트**입니다.
 - 프론트엔드는 별도 React 프로젝트에서 개발되었습니다.
 - 현재 배포는 하지 않았고, 로컬 및 Docker 기반 개발 환경을 기준으로 구성했습니다.
+- 로컬 실행 시 MySQL과 Redis를 함께 띄워야 합니다. Redis는 공개 메뉴 캐시, 세션 저장, 공개 주문 제한에 사용합니다.
 
 ## Next Improvements
 
