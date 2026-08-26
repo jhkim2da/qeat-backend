@@ -74,7 +74,7 @@ public class SejongProfileService {
             throw new LoginFailedException("로그인에 실패했습니다.");
         }
 
-        return new SejongProfileResponseDto(
+        return SejongProfileResponseDto.of(
                 major,
                 studentId,
                 name,

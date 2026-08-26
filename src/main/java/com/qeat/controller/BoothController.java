@@ -1,14 +1,28 @@
 package com.qeat.controller;
 
-import com.qeat.service.BoothService;
 import com.qeat.domain.Booth;
-import com.qeat.dto.auth.AuthUser;
-import com.qeat.dto.booth.*;
+import com.qeat.dto.booth.BoothCreateRequest;
+import com.qeat.dto.booth.BoothDetailResponse;
+import com.qeat.dto.booth.BoothMyResponse;
+import com.qeat.dto.booth.BoothOpenStatusRequest;
+import com.qeat.dto.booth.BoothOperatingTimeRequest;
+import com.qeat.dto.booth.BoothOperatorDetailResponse;
+import com.qeat.dto.booth.BoothOperatorResponse;
+import com.qeat.dto.booth.BoothResponse;
 import com.qeat.global.security.CustomUserPrincipal;
+import com.qeat.service.BoothService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
@@ -28,9 +42,7 @@ public class BoothController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BoothCreateRequest request
     ) {
-        Long ownerId = principal.getId();
-        Long boothId = boothService.createBooth(ownerId, request);
-
+        Long boothId = boothService.createBooth(principal.getId(), request);
         return ResponseEntity
                 .created(URI.create("/api/booths/my/" + boothId))
                 .body(boothId);
@@ -40,43 +52,36 @@ public class BoothController {
     public ResponseEntity<List<BoothMyResponse>> getMyBooth(
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        Long ownerId = principal.getId();
-        List<BoothMyResponse> booths = boothService.getMyBooth(ownerId);
-        return ResponseEntity.ok(booths);
+        return ResponseEntity.ok(boothService.getMyBooth(principal.getId()));
     }
 
     @GetMapping("/my/approved")
     public ResponseEntity<List<BoothMyResponse>> getMyApprovedBooths(
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        Long ownerId = principal.getId();
-        List<BoothMyResponse> booths = boothService.getMyApprovedBooths(ownerId);
-        return ResponseEntity.ok(booths);
+        return ResponseEntity.ok(boothService.getMyApprovedBooths(principal.getId()));
     }
 
     @GetMapping("/pending")
     public ResponseEntity<List<BoothMyResponse>> getPendingBooths(
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        List<BoothMyResponse> booths = boothService.getPendingBooths(userDetails.getId());
-        return ResponseEntity.ok(booths);
+        return ResponseEntity.ok(boothService.getPendingBooths(principal.getId()));
     }
 
     @GetMapping("/operators")
     public ResponseEntity<List<BoothOperatorResponse>> getBoothOperators(
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        List<BoothOperatorResponse> operators = boothService.getBoothOperators(userDetails.getId());
-        return ResponseEntity.ok(operators);
+        return ResponseEntity.ok(boothService.getBoothOperators(principal.getId()));
     }
 
     @GetMapping("/operators/{operatorId}")
     public ResponseEntity<BoothOperatorDetailResponse> getBoothOperatorDetail(
             @PathVariable Long operatorId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        BoothOperatorDetailResponse response = boothService.getBoothOperatorDetail(operatorId, userDetails.getId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(boothService.getBoothOperatorDetail(operatorId, principal.getId()));
     }
 
     @GetMapping("/my/{boothId}")
@@ -84,93 +89,84 @@ public class BoothController {
             @AuthenticationPrincipal CustomUserPrincipal principal,
             @PathVariable Long boothId
     ) {
-        Long ownerId = principal.getId();
-        BoothDetailResponse response = boothService.getMyBoothDetail(ownerId, boothId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(boothService.getMyBoothDetail(principal.getId(), boothId));
     }
+
     @PutMapping("/{boothId}")
     public ResponseEntity<BoothResponse> updateBooth(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @Valid @RequestBody BoothCreateRequest request
     ) {
-        Booth booth = boothService.updateBooth(userDetails.getId() , boothId, request);
+        Booth booth = boothService.updateBooth(principal.getId(), boothId, request);
         return ResponseEntity.ok(BoothResponse.from(booth));
     }
 
     @DeleteMapping("/{boothId}")
     public ResponseEntity<Void> deleteBooth(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        boothService.deleteBooth(boothId, authUser);
+        boothService.deleteBooth(boothId, principal.toAuthUser());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{boothId}/suspend")
     public ResponseEntity<BoothResponse> suspendBooth(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        Booth booth = boothService.suspendBooth(boothId, userDetails.getId());
+        Booth booth = boothService.suspendBooth(boothId, principal.getId());
         return ResponseEntity.ok(BoothResponse.from(booth));
     }
 
     @PatchMapping("/{boothId}/open-status")
     public ResponseEntity<Boolean> updateOpenStatus(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestBody BoothOpenStatusRequest request
     ) {
-        Boolean open = boothService.updateOpenStatus(
-                userDetails.getId(),
-                boothId,
-                request.open()
-        );
+        Boolean open = boothService.updateOpenStatus(principal.getId(), boothId, request.open());
         return ResponseEntity.ok(open);
     }
 
     @PatchMapping("/{boothId}/operating-time")
     public ResponseEntity<BoothResponse> updateOperatingTime(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
             @RequestBody BoothOperatingTimeRequest request
     ) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
         Booth booth = boothService.updateOperatingTime(
                 boothId,
-                authUser,
+                principal.toAuthUser(),
                 request.openTime(),
                 request.closeTime()
         );
-
         return ResponseEntity.ok(BoothResponse.from(booth));
     }
 
     @DeleteMapping("/{boothId}/operating-time")
     public ResponseEntity<BoothResponse> clearOperatingTime(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
+            @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        Booth booth = boothService.clearOperatingTime(boothId, authUser);
+        Booth booth = boothService.clearOperatingTime(boothId, principal.toAuthUser());
         return ResponseEntity.ok(BoothResponse.from(booth));
     }
 
     @PatchMapping("/{boothId}/approve")
     public void approveBooth(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
-    ){
-        boothService.approveBooth(boothId, userDetails.getId());
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        boothService.approveBooth(boothId, principal.getId());
     }
 
     @PatchMapping("/{boothId}/reject")
     public void rejectBooth(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails
-    ){
-        boothService.rejectBooth(boothId, userDetails.getId());
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        boothService.rejectBooth(boothId, principal.getId());
     }
 }

@@ -79,8 +79,8 @@ public class SejongAuthService {
     private String buildFormData(SejongLoginRequestDto loginRequestDto) {
         return "mainLogin=" + encode("N")
                 + "&rtUrl=" + encode("library.sejong.ac.kr")
-                + "&id=" + encode(loginRequestDto.getUserId())
-                + "&password=" + encode(loginRequestDto.getPassword());
+                + "&id=" + encode(loginRequestDto.userId())
+                + "&password=" + encode(loginRequestDto.password());
     }
 
     private String extractSsotokenFromHeaders(HttpHeaders headers) {

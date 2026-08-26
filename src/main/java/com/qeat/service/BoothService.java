@@ -13,15 +13,15 @@ import com.qeat.dto.booth.BoothMyResponse;
 import com.qeat.dto.booth.BoothOperatorDetailResponse;
 import com.qeat.dto.booth.BoothOperatorResponse;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 
 @Service
 public class BoothService {
@@ -49,34 +49,24 @@ public class BoothService {
     }
 
     @Transactional
-    public void approveBooth(Long boothId, Long  userId) {
+    public void approveBooth(Long boothId, Long userId) {
+        validateAdmin(userId);
         Booth booth = boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
-        if(user.getRole() == Role.ADMIN){
-            booth.approve();
-        } else{
-            throw new AccessDeniedException("관리자만 접근 가능합니다.");
-        }
+        booth.approve();
     }
 
     @Transactional
     public void rejectBooth(Long boothId, Long userId) {
+        validateAdmin(userId);
         Booth booth = boothRepository.findById(boothId)
                 .orElseThrow(() -> new IllegalArgumentException("부스를 찾을 수 없습니다."));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
-        if(user.getRole() == Role.ADMIN){
-            booth.reject();
-        } else{
-            throw new AccessDeniedException("관리자만 접근 가능합니다.");
-        }
+        booth.reject();
     }
 
     @Transactional(readOnly = true)
-    public List<BoothMyResponse> getMyBooth(Long ownerid) {
-        return boothRepository.findAllByOwnerId(ownerid)
+    public List<BoothMyResponse> getMyBooth(Long ownerId) {
+        return boothRepository.findAllByOwnerId(ownerId)
                 .stream()
                 .filter(booth -> booth.getBoothStatus() != BoothStatus.DELETED)
                 .map(BoothMyResponse::from)
@@ -93,13 +83,7 @@ public class BoothService {
 
     @Transactional(readOnly = true)
     public List<BoothMyResponse> getPendingBooths(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
-
-        if (user.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("관리자만 접근 가능합니다.");
-        }
-
+        validateAdmin(userId);
         return boothRepository.findAllByBoothStatus(BoothStatus.PENDING)
                 .stream()
                 .map(BoothMyResponse::from)
@@ -108,12 +92,7 @@ public class BoothService {
 
     @Transactional(readOnly = true)
     public List<BoothOperatorResponse> getBoothOperators(Long userId) {
-        User admin = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원가입이 되어있는 사용자만 접근 가능합니다."));
-
-        if (admin.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("관리자만 접근 가능합니다.");
-        }
+        validateAdmin(userId);
 
         Map<Long, Long> boothCountByOwnerId = boothRepository.findAllByBoothStatus(BoothStatus.APPROVED)
                 .stream()
@@ -139,7 +118,7 @@ public class BoothService {
                             entry.getValue()
                     );
                 })
-                .filter(response -> response != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -261,7 +240,7 @@ public class BoothService {
 
     @Transactional
     public Booth clearOperatingTime(Long boothId, AuthUser authUser) {
-        Booth booth =  getOperableBooth(boothId, authUser);
+        Booth booth = getOperableBooth(boothId, authUser);
         booth.clearOperatingTime();
         return booth;
     }

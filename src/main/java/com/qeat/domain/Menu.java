@@ -39,10 +39,6 @@ public class Menu {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -52,29 +48,20 @@ public class Menu {
     }
 
     public boolean isSoldOut() {
-        return soldOut;
+        return Boolean.TRUE.equals(soldOut);
     }
 
-    public void setSoldOut(Boolean soldOut) {
-        this.soldOut = soldOut;
+    public void toggleSoldOut() {
+        this.soldOut = !isSoldOut();
     }
 
     public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public Category getCategory() {
         return category;
     }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
 
     public Menu(Booth booth, String name, String description, int price, String imageUrl, Category category) {
         this.booth = booth;

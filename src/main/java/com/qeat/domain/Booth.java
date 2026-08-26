@@ -36,9 +36,7 @@ public class Booth {
 
     @Column(nullable = false)
     private boolean open = true;
-
-
-    private  LocalTime openTime;
+    private LocalTime openTime;
     private LocalTime closeTime;
 
     protected Booth() {}
@@ -92,14 +90,17 @@ public class Booth {
     public void changeOpenStatus(Boolean open) {
         this.open = open;
     }
+
     public void changeOperatingTime(LocalTime openTime, LocalTime closeTime) {
         this.openTime = openTime;
         this.closeTime = closeTime;
     }
+
     public void clearOperatingTime() {
         this.openTime = null;
         this.closeTime = null;
     }
+
     public void approve() {
         this.boothStatus = BoothStatus.APPROVED;
     }
