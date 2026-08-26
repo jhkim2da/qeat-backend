@@ -6,6 +6,7 @@ import com.qeat.dto.auth.AuthUser;
 import com.qeat.dto.menu.MenuCreateForm;
 import com.qeat.dto.menu.MenuResponse;
 import com.qeat.global.ImageUploader;
+import com.qeat.global.redis.PublicMenuCache;
 import com.qeat.repository.MenuRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,18 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final ImageUploader imageUploader;
     private final BoothService boothService;
+    private final PublicMenuCache publicMenuCache;
 
-    public MenuService(MenuRepository menuRepository, ImageUploader imageUploader, BoothService boothService) {
+    public MenuService(
+            MenuRepository menuRepository,
+            ImageUploader imageUploader,
+            BoothService boothService,
+            PublicMenuCache publicMenuCache
+    ) {
         this.menuRepository = menuRepository;
         this.imageUploader = imageUploader;
         this.boothService = boothService;
+        this.publicMenuCache = publicMenuCache;
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +58,9 @@ public class MenuService {
                 imageUrl,
                 form.getCategory()
         );
-        return MenuResponse.from(menuRepository.save(menu));
+        Menu saved = menuRepository.save(menu);
+        publicMenuCache.evict(boothId);
+        return MenuResponse.from(saved);
     }
 
     @Transactional
@@ -58,6 +68,7 @@ public class MenuService {
         boothService.getOperableBooth(boothId, authUser);
         Menu menu = getMenuInBooth(menuId, boothId);
         menuRepository.delete(menu);
+        publicMenuCache.evict(boothId);
     }
 
     @Transactional
@@ -65,6 +76,7 @@ public class MenuService {
         boothService.getOperableBooth(boothId, authUser);
         Menu menu = getMenuInBooth(menuId, boothId);
         menu.toggleSoldOut();
+        publicMenuCache.evict(boothId);
     }
 
     @Transactional
@@ -86,6 +98,7 @@ public class MenuService {
                 imageUrl,
                 form.getCategory()
         );
+        publicMenuCache.evict(boothId);
         return MenuResponse.from(menu);
     }
 

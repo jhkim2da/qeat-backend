@@ -3,7 +3,13 @@ package com.qeat.global.security;
 import com.qeat.domain.Role;
 import com.qeat.dto.auth.AuthUser;
 
-public class CustomUserPrincipal {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class CustomUserPrincipal implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final String studentNumber;
