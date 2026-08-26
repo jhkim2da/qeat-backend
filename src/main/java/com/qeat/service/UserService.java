@@ -1,9 +1,9 @@
 package com.qeat.service;
 
-import com.qeat.repository.UserRepository;
 import com.qeat.domain.Role;
 import com.qeat.domain.User;
 import com.qeat.dto.sejong.SejongProfileResponseDto;
+import com.qeat.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,29 +18,26 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User findOrSave(SejongProfileResponseDto sejongProfileResponseDto) {
-        String studentId = sejongProfileResponseDto.getStudentId();
-
-        if (studentId == null || studentId.trim().isEmpty()) {
+    @Transactional
+    public User findOrSave(SejongProfileResponseDto profile) {
+        String studentId = profile.studentId();
+        if (studentId == null || studentId.isBlank()) {
             throw new IllegalArgumentException("학번이 없습니다.");
         }
 
-        studentId = studentId.trim();
-
-        Optional<User> user = userRepository.findByStudentNumber(studentId);
-
+        String normalizedStudentId = studentId.trim();
+        Optional<User> user = userRepository.findByStudentNumber(normalizedStudentId);
         if (user.isPresent()) {
             return user.get();
         }
 
         User newUser = User.create(
-                studentId,
-                sejongProfileResponseDto.getName(),
-                sejongProfileResponseDto.getMajor(),
-                sejongProfileResponseDto.getGradeLevel(),
+                normalizedStudentId,
+                profile.name(),
+                profile.major(),
+                profile.gradeLevel(),
                 Role.OPERATOR
         );
-
         return userRepository.save(newUser);
     }
 
@@ -52,7 +49,6 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
         user.changeRole(Role.ADMIN);
         return user;
     }

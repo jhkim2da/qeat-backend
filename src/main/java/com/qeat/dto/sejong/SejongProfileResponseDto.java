@@ -1,23 +1,16 @@
 package com.qeat.dto.sejong;
 
-public class SejongProfileResponseDto {
-
-    private String major;
-    private String studentId;
-    private String name;
-    private Integer gradeLevel;
-
-    public SejongProfileResponseDto() {
+public record SejongProfileResponseDto(
+        String major,
+        String studentId,
+        String name,
+        Integer gradeLevel
+) {
+    public static SejongProfileResponseDto of(String major, String studentId, String name, String gradeLevel) {
+        return new SejongProfileResponseDto(major, studentId, name, extractNumber(gradeLevel));
     }
 
-    public SejongProfileResponseDto(String major, String studentId, String name, String gradeLevel) {
-        this.major = major;
-        this.studentId = studentId;
-        this.name = name;
-        this.gradeLevel = extractNumber(gradeLevel);
-    }
-
-    private Integer extractNumber(String value) {
+    private static Integer extractNumber(String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
@@ -28,37 +21,5 @@ public class SejongProfileResponseDto {
         }
 
         return Integer.parseInt(numberOnly);
-    }
-
-    public String getMajor() {
-        return major;
-    }
-
-    public String getStudentId() {
-        return studentId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Integer getGradeLevel() {
-        return gradeLevel;
-    }
-
-    public void setMajor(String major) {
-        this.major = major;
-    }
-
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setGradeLevel(Integer gradeLevel) {
-        this.gradeLevel = gradeLevel;
     }
 }

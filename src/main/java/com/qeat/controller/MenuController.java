@@ -1,19 +1,25 @@
 package com.qeat.controller;
 
-import com.qeat.service.MenuService;
-import com.qeat.dto.auth.AuthUser;
 import com.qeat.dto.menu.MenuCreateForm;
 import com.qeat.dto.menu.MenuResponse;
 import com.qeat.global.security.CustomUserPrincipal;
+import com.qeat.service.MenuService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 public class MenuController {
+
     private final MenuService menuService;
 
     public MenuController(MenuService menuService) {
@@ -28,19 +34,19 @@ public class MenuController {
     @PostMapping("/api/booths/{boothId}/menus")
     public MenuResponse createMenu(
             @PathVariable Long boothId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails ,
-            @Valid @ModelAttribute MenuCreateForm form) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        return menuService.createMenu(boothId, authUser ,form);
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @Valid @ModelAttribute MenuCreateForm form
+    ) {
+        return menuService.createMenu(boothId, principal.toAuthUser(), form);
     }
 
     @DeleteMapping("/api/booths/{boothId}/menus/{menuId}")
     public ResponseEntity<Void> deleteMenu(
             @PathVariable Long boothId,
             @PathVariable Long menuId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        menuService.deleteMenu(boothId, menuId, authUser);
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        menuService.deleteMenu(boothId, menuId, principal.toAuthUser());
         return ResponseEntity.ok().build();
     }
 
@@ -48,20 +54,20 @@ public class MenuController {
     public ResponseEntity<Void> toggleSoldOut(
             @PathVariable Long boothId,
             @PathVariable Long menuId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        menuService.toggleSoldOut(boothId, menuId,authUser);
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        menuService.toggleSoldOut(boothId, menuId, principal.toAuthUser());
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/api/booths/{boothId}/menus/{menuId}")
-    public  MenuResponse updateMenu(
+    public MenuResponse updateMenu(
             @PathVariable Long boothId,
             @PathVariable Long menuId,
-            @AuthenticationPrincipal CustomUserPrincipal userDetails,
-            @Valid @ModelAttribute MenuCreateForm form) {
-        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
-        return menuService.updateMenu( boothId, menuId, authUser, form);
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @Valid @ModelAttribute MenuCreateForm form
+    ) {
+        return menuService.updateMenu(boothId, menuId, principal.toAuthUser(), form);
     }
 
     @GetMapping("/api/menus/{menuId}")

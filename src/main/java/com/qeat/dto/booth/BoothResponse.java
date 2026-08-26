@@ -2,26 +2,21 @@ package com.qeat.dto.booth;
 
 import com.qeat.domain.Bank;
 import com.qeat.domain.Booth;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.time.LocalTime;
 
-@Getter
-@AllArgsConstructor
-public class BoothResponse {
-
-    private Long id;
-    private Long boothId;
-    private String name;
-    private Bank bank;
-    private String accountNumber;
-    private String description;
-    private boolean open;
-    private LocalTime openTime;
-    private LocalTime closeTime;
-    private boolean canOrder;
-
+public record BoothResponse(
+        Long id,
+        Long boothId,
+        String name,
+        Bank bank,
+        String accountNumber,
+        String description,
+        boolean open,
+        LocalTime openTime,
+        LocalTime closeTime,
+        boolean canOrder
+) {
     public static BoothResponse from(Booth booth) {
         return new BoothResponse(
                 booth.getId(),

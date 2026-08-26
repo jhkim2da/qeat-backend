@@ -8,7 +8,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByBoothId(Long bootId);
+    List<Order> findByBoothId(Long boothId);
     List<Order> findByBoothIdOrderByCreatedAtDescIdDesc(Long boothId);
-    List<Order> findByBoothIdAndStatusAndCompletedAtBetween(Long bootId, Status status, LocalDateTime start, LocalDateTime end);
+    List<Order> findByBoothIdAndStatusAndCompletedAtBetween(
+            Long boothId,
+            Status status,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }

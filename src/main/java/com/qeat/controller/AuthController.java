@@ -1,38 +1,44 @@
 package com.qeat.controller;
 
-import com.qeat.service.SejongUserService;
-import com.qeat.service.UserService;
 import com.qeat.domain.User;
 import com.qeat.dto.auth.LoginResponseDto;
 import com.qeat.dto.sejong.SejongLoginRequestDto;
 import com.qeat.exception.ErrorResponse;
 import com.qeat.global.security.CustomUserPrincipal;
+import com.qeat.service.SejongUserService;
+import com.qeat.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final SejongUserService sejongUserService;
     private final UserService userService;
 
+    public AuthController(SejongUserService sejongUserService, UserService userService) {
+        this.sejongUserService = sejongUserService;
+        this.userService = userService;
+    }
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(
             @RequestBody SejongLoginRequestDto loginRequestDto,
             HttpServletRequest request
     ) {
-        LoginResponseDto response = sejongUserService.login(loginRequestDto, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(sejongUserService.login(loginRequestDto, request));
     }
 
     @GetMapping("/me")
@@ -53,16 +59,12 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
         if (session != null) {
             session.invalidate();
         }
 
         SecurityContextHolder.clearContext();
-
-        return ResponseEntity.ok(Map.of(
-                "message", "로그아웃 성공"
-        ));
+        return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
     }
 
     @PostMapping("/bootstrap-admin")

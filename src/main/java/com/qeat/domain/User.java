@@ -1,6 +1,13 @@
 package com.qeat.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Getter
@@ -25,8 +32,8 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    protected User() {}
-
+    protected User() {
+    }
 
     public static User create(String studentNumber, String name, String major, Integer grade, Role role) {
         User user = new User();
@@ -41,5 +48,4 @@ public class User {
     public void changeRole(Role role) {
         this.role = role;
     }
-
 }

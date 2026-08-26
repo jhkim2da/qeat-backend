@@ -111,8 +111,8 @@ class OrderServiceTest {
                 owner
         );
 
-        assertThat(summary.getTotalSales()).isEqualTo(0);
-        assertThat(summary.getTotalOrderCount()).isEqualTo(0);
+        assertThat(summary.totalSales()).isEqualTo(0);
+        assertThat(summary.totalOrderCount()).isEqualTo(0);
         verify(boothService).getOperableBooth(1L, owner);
     }
 

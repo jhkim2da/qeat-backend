@@ -3,7 +3,6 @@ package com.qeat.dto.menu;
 import com.qeat.domain.Category;
 import com.qeat.domain.Menu;
 
-
 public record MenuResponse(
         Long id,
         String name,
