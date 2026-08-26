@@ -25,7 +25,7 @@ public record PublicTableMenuResponse(
                 table.getBooth().isOpen(),
                 table.getBooth().getOpenTime(),
                 table.getBooth().getCloseTime(),
-                table.getBooth().canOrder(table.getBooth()),
+                table.getBooth().canOrder(),
                 table.getId(),
                 table.getTableNumber(),
                 table.getTableToken(),

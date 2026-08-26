@@ -2,7 +2,6 @@ package com.qeat.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -72,19 +71,19 @@ public class Booth {
         this.createdAt = LocalDate.now();
     }
 
-    public boolean canOrder(Booth booth) {
-        if (booth.getBoothStatus() != BoothStatus.APPROVED) {
+    public boolean canOrder() {
+        if (this.boothStatus != BoothStatus.APPROVED) {
             return false;
         }
 
-        if (!booth.isOpen()) {
+        if (!this.open) {
             return false;
         }
 
         LocalTime now = LocalTime.now();
 
-        if (booth.getOpenTime() != null && booth.getCloseTime() != null) {
-            return !now.isBefore(booth.getOpenTime()) && now.isBefore(booth.getCloseTime());
+        if (this.openTime != null && this.closeTime != null) {
+            return !now.isBefore(this.openTime) && now.isBefore(this.closeTime);
         }
 
         return true;

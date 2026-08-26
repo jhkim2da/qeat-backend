@@ -172,7 +172,7 @@ public class BoothService {
     @Transactional(readOnly = true)
     public BoothDetailResponse getMyBoothDetail(Long ownerId, Long boothId) {
         Booth booth = boothRepository.findByIdAndOwnerId(boothId, ownerId)
-                .orElseThrow(() -> new RuntimeException("해당 부스를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 부스를 찾을 수 없습니다."));
 
         return BoothDetailResponse.from(booth);
     }

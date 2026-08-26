@@ -6,6 +6,7 @@ import com.qeat.dto.order.OrderCreateRequest;
 import com.qeat.dto.order.OrderResponse;
 import com.qeat.dto.order.SalesSummaryResponse;
 import com.qeat.global.security.CustomUserPrincipal;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,8 +23,13 @@ public class OrderController {
         this.orderService = orderService;
     }
     @PostMapping("/api/booths/{boothId}/orders")
-    public ResponseEntity<Long> createOrder(@PathVariable Long boothId, @RequestBody OrderCreateRequest request) {
-        Long orderId = orderService.createOrder(boothId, request);
+    public ResponseEntity<Long> createOrder(
+            @PathVariable Long boothId,
+            @Valid @RequestBody OrderCreateRequest request,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
+    ) {
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
+        Long orderId = orderService.createOrder(boothId, request, authUser);
         return ResponseEntity.ok(orderId);
     }
 
@@ -75,12 +81,14 @@ public class OrderController {
             LocalDate startDate,
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate endDate
+            LocalDate endDate,
+            @AuthenticationPrincipal CustomUserPrincipal userDetails
     ) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        AuthUser authUser = new AuthUser(userDetails.getId(), userDetails.getRole());
 
-        SalesSummaryResponse response = orderService.getSalesSummary(boothId, startDateTime, endDateTime);
+        SalesSummaryResponse response = orderService.getSalesSummary(boothId, startDateTime, endDateTime, authUser);
         return ResponseEntity.ok(response);
     }
 }

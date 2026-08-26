@@ -2,6 +2,8 @@ package com.qeat.service;
 
 import com.qeat.dto.sejong.SejongLoginRequestDto;
 import com.qeat.exception.LoginFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,6 +20,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class SejongAuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(SejongAuthService.class);
 
     private static final String PORTAL_LOGIN_URL =
             "https://portal.sejong.ac.kr/jsp/login/login_action.jsp";
@@ -45,12 +49,7 @@ public class SejongAuthService {
             HttpResponse<String> loginResponse =
                     httpClient.send(loginRequest, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("===== login status =====");
-            System.out.println(loginResponse.statusCode());
-
-            System.out.println("===== all set-cookie =====");
-            List<String> cookies = loginResponse.headers().allValues("set-cookie");
-            cookies.forEach(System.out::println);
+            log.info("Sejong portal login responded with status {}", loginResponse.statusCode());
 
             String ssoToken = extractSsotokenFromHeaders(loginResponse.headers());
 
@@ -69,8 +68,11 @@ public class SejongAuthService {
 
             return ssoToken;
 
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Failed: Authentication process failed", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new LoginFailedException("로그인에 실패했습니다.");
+        } catch (IOException e) {
+            throw new LoginFailedException("로그인에 실패했습니다.");
         }
     }
 
