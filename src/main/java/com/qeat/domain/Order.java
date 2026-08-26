@@ -1,6 +1,5 @@
 package com.qeat.domain;
 
-import com.qeat.dto.order.OrderCreateRequest;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -31,10 +30,6 @@ public class Order {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    public void setCompletedAt(LocalDateTime completedAt) {
-        this.completedAt = completedAt;
-    }
-
     public Long getId() {
         return id;
     }
@@ -59,12 +54,33 @@ public class Order {
         return createdAt;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public LocalDateTime getCompletedAt() {
         return completedAt;
+    }
+
+    public void confirm() {
+        if (status != Status.CHECK) {
+            throw new IllegalStateException("주문의 상태가 입금 확인이 아닙니다.");
+        }
+        this.status = Status.COOKING;
+    }
+
+    public void complete(LocalDateTime completedAt) {
+        if (status != Status.COOKING) {
+            throw new IllegalStateException("주문의 상태가 요리중이 아닙니다.");
+        }
+        this.status = Status.DONE;
+        this.completedAt = completedAt;
+    }
+
+    public void cancel() {
+        if (status == Status.DONE) {
+            throw new IllegalStateException("완료된 주문은 취소할 수 없습니다.");
+        }
+        if (status == Status.CANCELED) {
+            throw new IllegalStateException("이미 취소된 주문입니다.");
+        }
+        this.status = Status.CANCELED;
     }
 
     private Order(Long boothId, Long tableId, int totalPrice) {

@@ -33,7 +33,7 @@ public class BoothResponse {
                 booth.isOpen(),
                 booth.getOpenTime(),
                 booth.getCloseTime(),
-                booth.canOrder(booth)
+                booth.canOrder()
         );
     }
 }

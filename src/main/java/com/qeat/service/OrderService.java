@@ -59,7 +59,7 @@ public class OrderService {
             throw new IllegalStateException("해당 부스의 테이블이 아닙니다.");
         }
 
-        if (!booth.canOrder(booth)) {
+        if (!booth.canOrder()) {
             throw new IllegalStateException("현재 영업중이 아닙니다.");
         }
 
@@ -116,6 +116,12 @@ public class OrderService {
         );
     }
 
+    @Transactional
+    public Long createOrder(Long boothId, OrderCreateRequest request, AuthUser authUser) {
+        boothService.getOperableBooth(boothId, authUser);
+        return createOrder(boothId, request);
+    }
+
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrders(Long boothId, AuthUser authUser) {
         boothService.getOperableBooth(boothId, authUser);
@@ -140,45 +146,25 @@ public class OrderService {
 
     @Transactional
     public void confirmOrder(Long boothId, Long orderId, AuthUser authUser) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
-        Booth booth = boothService.getOperableBooth(boothId, authUser);
-        if (!order.getBoothId().equals(booth.getId())) {
-            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
-        }
-        if (order.getStatus() !=  Status.CHECK) {
-            throw new IllegalStateException("주문의 상태가 입금 확인이 아닙니다.");
-        }
-        order.setStatus(Status.COOKING);
-        orderRepository.save(order);
+        Order order = getOperableOrder(boothId, orderId, authUser);
+        order.confirm();
     }
 
     @Transactional
     public void completeOrder(Long boothId, Long orderId, AuthUser authUser) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
-        Booth booth = boothService.getOperableBooth(boothId, authUser);
-        if (!order.getBoothId().equals(booth.getId())) {
-            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
-        }
-        if (order.getStatus() !=  Status.COOKING) {
-            throw new IllegalStateException("주문의 상태가 요리중이 아닙니다.");
-        }
-        order.setStatus(Status.DONE);
-        order.setCompletedAt(LocalDateTime.now());
-        orderRepository.save(order);
+        Order order = getOperableOrder(boothId, orderId, authUser);
+        order.complete(LocalDateTime.now());
     }
 
     @Transactional
     public void cancelOrder(Long boothId, Long orderId, AuthUser authUser) {
-        Order order = orderRepository.findById(orderId).orElseThrow(()-> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
-        Booth booth = boothService.getOperableBooth(boothId, authUser);
-        if (!order.getBoothId().equals(booth.getId())) {
-            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
-        }
-        order.setStatus(Status.CANCELED);
-        orderRepository.save(order);
+        Order order = getOperableOrder(boothId, orderId, authUser);
+        order.cancel();
     }
 
-    public SalesSummaryResponse getSalesSummary(Long boothId, LocalDateTime startDate, LocalDateTime endDate) {
+    @Transactional(readOnly = true)
+    public SalesSummaryResponse getSalesSummary(Long boothId, LocalDateTime startDate, LocalDateTime endDate, AuthUser authUser) {
+        boothService.getOperableBooth(boothId, authUser);
         List<Order> orders = orderRepository.findByBoothIdAndStatusAndCompletedAtBetween(
                 boothId, Status.DONE, startDate, endDate
         );
@@ -221,6 +207,13 @@ public class OrderService {
         );
     }
 
-
-
+    private Order getOperableOrder(Long boothId, Long orderId, AuthUser authUser) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("상태를 바꿀 주문이 없습니다."));
+        Booth booth = boothService.getOperableBooth(boothId, authUser);
+        if (!order.getBoothId().equals(booth.getId())) {
+            throw new AccessDeniedException("해당 부스의 주문이 아닙니다.");
+        }
+        return order;
+    }
 }

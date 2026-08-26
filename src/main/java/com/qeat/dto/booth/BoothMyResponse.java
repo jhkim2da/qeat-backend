@@ -31,7 +31,7 @@ public record BoothMyResponse(
                 booth.isOpen(),
                 booth.getOpenTime(),
                 booth.getCloseTime(),
-                booth.canOrder(booth),
+                booth.canOrder(),
                 booth.getCreatedAt()
         );
     }
