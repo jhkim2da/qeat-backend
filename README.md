@@ -134,18 +134,21 @@ FILE_DIR=./uploads
 FILE_URL_PREFIX=/uploads
 QR_BASE_URL=http://localhost:5173
 SERVER_PORT=9090
+REDIS_HOST=localhost
+REDIS_PORT=6379
 ```
 
-### 2. MySQL 실행
+### 2. MySQL과 Redis 실행
 
 ```bash
 docker compose up -d
 ```
 
-현재 Docker Compose 기준 MySQL은 다음 포트로 열립니다.
+Docker Compose 기준 포트는 다음과 같습니다.
 
 ```text
-localhost:1000 -> container 3306
+MySQL  localhost:1000 -> container 3306
+Redis  localhost:6379 -> container 6379
 ```
 
 ### 3. 백엔드 실행
