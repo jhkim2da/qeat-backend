@@ -90,13 +90,25 @@ public class OrderService {
 
         Map<Long, Menu> menuMap = new HashMap<>();
         int totalPrice = 0;
+        List<Long> lockedMenuIds = request.items().stream()
+                .map(OrderItemRequest::menuId)
+                .distinct()
+                .sorted()
+                .toList();
+        for (Long menuId : lockedMenuIds) {
+            Menu menu = menuRepository.findByIdForUpdate(menuId)
+                    .orElseThrow(() -> new IllegalArgumentException("메뉴가 존재하지 않습니다."));
+            menuMap.put(menuId, menu);
+        }
         for (OrderItemRequest item : request.items()) {
             if (item.quantity() <= 0) {
                 throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
             }
 
-            Menu menu = menuRepository.findById(item.menuId())
-                    .orElseThrow(() -> new IllegalArgumentException("메뉴가 존재하지 않습니다."));
+            Menu menu = menuMap.get(item.menuId());
+            if (menu == null) {
+                throw new IllegalArgumentException("메뉴가 존재하지 않습니다.");
+            }
             if (!boothId.equals(menu.getBooth().getId())) {
                 throw new IllegalStateException("해당 부스의 메뉴가 아닙니다.");
             }
@@ -105,7 +117,6 @@ public class OrderService {
             }
 
             totalPrice += menu.getPrice() * item.quantity();
-            menuMap.put(menu.getId(), menu);
         }
 
         Order order = Order.create(boothId, request.tableId(), totalPrice);

@@ -27,8 +27,11 @@ public class MenuController {
     }
 
     @GetMapping("/api/booths/{boothId}/menus")
-    public List<MenuResponse> getMenusByBooth(@PathVariable Long boothId) {
-        return menuService.getMenusByBooth(boothId);
+    public List<MenuResponse> getMenusByBooth(
+            @PathVariable Long boothId,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        return menuService.getMenusByBooth(boothId, principal.toAuthUser());
     }
 
     @PostMapping("/api/booths/{boothId}/menus")
@@ -71,7 +74,10 @@ public class MenuController {
     }
 
     @GetMapping("/api/menus/{menuId}")
-    public MenuResponse getMenu(@PathVariable Long menuId) {
-        return menuService.getMenuById(menuId);
+    public MenuResponse getMenu(
+            @PathVariable Long menuId,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        return menuService.getMenuById(menuId, principal.toAuthUser());
     }
 }

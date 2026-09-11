@@ -2,10 +2,15 @@ package com.qeat.service;
 
 import com.qeat.domain.Bank;
 import com.qeat.domain.Booth;
+import com.qeat.domain.BoothTable;
+import com.qeat.domain.Category;
+import com.qeat.domain.Menu;
 import com.qeat.domain.Order;
 import com.qeat.domain.Role;
 import com.qeat.domain.Status;
 import com.qeat.dto.auth.AuthUser;
+import com.qeat.dto.order.OrderCreateRequest;
+import com.qeat.dto.order.OrderItemRequest;
 import com.qeat.repository.BoothRepository;
 import com.qeat.repository.BoothTableRepository;
 import com.qeat.repository.MenuRepository;
@@ -126,6 +131,26 @@ class OrderServiceTest {
         assertThatThrownBy(() -> orderService.confirmOrder(1L, 10L, owner))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessage("해당 부스의 주문이 아닙니다.");
+    }
+
+    @Test
+    void createOrder_rejectsSoldOutMenuAfterLockingRow() {
+        BoothTable table = new BoothTable(booth, 1, "token");
+        ReflectionTestUtils.setField(table, "id", 3L);
+        Menu menu = new Menu(booth, "떡볶이", "설명", 4000, "/uploads/a.png", Category.MAIN_FOOD);
+        menu.toggleSoldOut();
+        ReflectionTestUtils.setField(menu, "id", 7L);
+
+        when(boothRepository.findById(1L)).thenReturn(Optional.of(booth));
+        when(boothTableRepository.findById(3L)).thenReturn(Optional.of(table));
+        when(menuRepository.findByIdForUpdate(7L)).thenReturn(Optional.of(menu));
+
+        assertThatThrownBy(() -> orderService.createOrder(
+                1L,
+                new OrderCreateRequest(3L, List.of(new OrderItemRequest(7L, 1)))
+        )).isInstanceOf(IllegalStateException.class)
+                .hasMessage("품절된 메뉴입니다.");
+        verify(menuRepository).findByIdForUpdate(7L);
     }
 
     private Order checkOrder() {
