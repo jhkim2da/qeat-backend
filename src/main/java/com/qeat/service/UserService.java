@@ -4,6 +4,8 @@ import com.qeat.domain.Role;
 import com.qeat.domain.User;
 import com.qeat.dto.sejong.SejongProfileResponseDto;
 import com.qeat.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +15,14 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final boolean bootstrapAdminEnabled;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            @Value("${qeat.bootstrap-admin.enabled:false}") boolean bootstrapAdminEnabled
+    ) {
         this.userRepository = userRepository;
+        this.bootstrapAdminEnabled = bootstrapAdminEnabled;
     }
 
     @Transactional
@@ -43,6 +50,9 @@ public class UserService {
 
     @Transactional
     public User bootstrapAdmin(Long userId) {
+        if (!bootstrapAdminEnabled) {
+            throw new AccessDeniedException("ADMIN 부트스트랩이 비활성화되어 있습니다.");
+        }
         if (userRepository.existsByRole(Role.ADMIN)) {
             throw new IllegalStateException("이미 ADMIN 사용자가 존재합니다.");
         }

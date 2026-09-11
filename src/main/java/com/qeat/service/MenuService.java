@@ -35,7 +35,8 @@ public class MenuService {
     }
 
     @Transactional(readOnly = true)
-    public List<MenuResponse> getMenusByBooth(Long boothId) {
+    public List<MenuResponse> getMenusByBooth(Long boothId, AuthUser authUser) {
+        boothService.getOperableBooth(boothId, authUser);
         return menuRepository.findByBooth_Id(boothId)
                 .stream()
                 .map(MenuResponse::from)
@@ -103,9 +104,10 @@ public class MenuService {
     }
 
     @Transactional(readOnly = true)
-    public MenuResponse getMenuById(Long menuId) {
+    public MenuResponse getMenuById(Long menuId, AuthUser authUser) {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new IllegalArgumentException("메뉴가 존재하지 않습니다."));
+        boothService.getOperableBooth(menu.getBooth().getId(), authUser);
         return MenuResponse.from(menu);
     }
 
