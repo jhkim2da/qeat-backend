@@ -60,7 +60,7 @@ public class MenuService {
                 form.getCategory()
         );
         Menu saved = menuRepository.save(menu);
-        publicMenuCache.evict(boothId);
+        publicMenuCache.evictAfterCommit(boothId);
         return MenuResponse.from(saved);
     }
 
@@ -69,7 +69,7 @@ public class MenuService {
         boothService.getOperableBooth(boothId, authUser);
         Menu menu = getMenuInBooth(menuId, boothId);
         menuRepository.delete(menu);
-        publicMenuCache.evict(boothId);
+        publicMenuCache.evictAfterCommit(boothId);
     }
 
     @Transactional
@@ -77,7 +77,7 @@ public class MenuService {
         boothService.getOperableBooth(boothId, authUser);
         Menu menu = getMenuInBooth(menuId, boothId);
         menu.toggleSoldOut();
-        publicMenuCache.evict(boothId);
+        publicMenuCache.evictAfterCommit(boothId);
     }
 
     @Transactional
@@ -99,7 +99,7 @@ public class MenuService {
                 imageUrl,
                 form.getCategory()
         );
-        publicMenuCache.evict(boothId);
+        publicMenuCache.evictAfterCommit(boothId);
         return MenuResponse.from(menu);
     }
 
